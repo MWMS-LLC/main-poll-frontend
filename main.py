@@ -30,7 +30,15 @@ app.add_middleware(
 def get_db_connection():
     """Get database connection"""
     try:
-        conn = pg8000.connect(os.getenv("DATABASE_URL"))
+        database_url = os.getenv("DATABASE_URL")
+        logger.info(f"Attempting to connect to database with URL: {database_url}")
+        
+        if not database_url:
+            logger.error("DATABASE_URL environment variable is not set!")
+            return None
+            
+        conn = pg8000.connect(database_url)
+        logger.info("Database connection successful!")
         return conn
     except Exception as e:
         logger.error(f"Database connection failed: {e}")
