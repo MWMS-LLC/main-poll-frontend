@@ -1,8 +1,17 @@
-# Python version constraint - force Python 3.11
-python_requires>=3.11,<3.12
+# 🚀 Render-Friendly Requirements (Python 3.13 Compatible)
+# These packages are served with a silver spoon by Render! ✨
 
+# Core web framework - pure Python, no Rust dependencies
 fastapi==0.104.1
+
+# ASGI server - pure Python, no Rust dependencies  
 uvicorn[standard]==0.24.0
-psycopg2==2.9.9
+
+# Database adapter - pure Python, no Rust dependencies
+psycopg2==2.9.6
+
+# Environment management - pure Python
 python-dotenv==1.0.0
-pydantic==2.5.0
+
+# Data validation - pure Python, no Rust dependencies
+pydantic==1.10.8
