@@ -1,17 +1,17 @@
-# 🚀 Render-Friendly Requirements (Python 3.13 Compatible)
-# These packages are served with a silver spoon by Render! ✨
+# 🚀 Python 3.13 Compatible Requirements
+# These versions actually work with Python 3.13!
 
-# Core web framework - pure Python, no Rust dependencies
+# Core web framework - v2 with pydantic v2 support
 fastapi==0.104.1
 
-# ASGI server - pure Python, no Rust dependencies  
+# ASGI server - compatible with FastAPI 0.104.1
 uvicorn[standard]==0.24.0
 
-# Database adapter - pure Python, no Rust dependencies
+# Database adapter - pure Python, no binary issues
 psycopg2==2.9.6
 
-# Environment management - pure Python
+# Environment management
 python-dotenv==1.0.0
 
-# Data validation - pure Python, no Rust dependencies
-pydantic==1.10.8
+# Data validation - v2 for Python 3.13 compatibility
+pydantic==2.5.0
