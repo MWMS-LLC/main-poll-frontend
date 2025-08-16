@@ -141,13 +141,19 @@ def validate_other_request(data: Dict[str, Any]) -> Dict[str, Any]:
 # API endpoints
 @app.get("/")
 async def root():
-    """Test endpoint to verify server is accessible"""
-    return {"message": "Teen Poll API is running!", "status": "ok"}
+    """Root endpoint"""
+    return {"message": "Teen Poll API is running", "status": "ok"}
+
+@app.get("/test")
+async def test():
+    """Test endpoint to verify code is running"""
+    logger.info("🔍 Test endpoint called - debug logging is working!")
+    return {"message": "Test endpoint working", "timestamp": str(datetime.datetime.now())}
 
 @app.get("/health")
-async def health_check():
+async def health():
     """Health check endpoint that doesn't require database"""
-    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+    return {"status": "healthy", "timestamp": str(datetime.datetime.now())}
 
 @app.get("/api/categories")
 async def get_categories():
