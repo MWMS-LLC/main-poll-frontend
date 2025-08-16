@@ -93,13 +93,21 @@ async def root():
     """Test endpoint to verify server is accessible"""
     return {"message": "Teen Poll API is running!", "status": "ok"}
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint that doesn't require database"""
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+
 @app.get("/api/categories")
 async def get_categories():
     """Get all categories"""
-    query = "SELECT * FROM categories ORDER BY id"
-    results = execute_query(query)
-    logger.info(f"Categories query returned {len(results)} results")
-    return results
+    try:
+        query = "SELECT * FROM categories ORDER BY id"
+        results = execute_query(query)
+        return results
+    except Exception as e:
+        logger.error(f"Error fetching categories: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch categories")
 
 @app.get("/api/categories/{category_id}/blocks")
 async def get_blocks_by_category(category_id: int):
