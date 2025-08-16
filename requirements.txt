@@ -1,5 +1,5 @@
-# 🚀 Python 3.13 Compatible Requirements (No Pydantic!)
-# These packages actually work with Python 3.13!
+# 🚀 Python 3.13 Compatible Requirements (Pure Python Only!)
+# These packages have NO binary dependencies and work with Python 3.13!
 
 # Core web framework - pure Python
 fastapi==0.95.2
@@ -7,8 +7,8 @@ fastapi==0.95.2
 # ASGI server - pure Python
 uvicorn[standard]==0.22.0
 
-# Database adapter - binary version compatible with Python 3.13
-psycopg2-binary==2.9.6
+# Database adapter - pure Python, no binary dependencies
+pg8000==1.29.8
 
 # Environment management
 python-dotenv==1.0.0

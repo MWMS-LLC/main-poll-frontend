@@ -1,11 +1,6 @@
-import os
-import logging
-from datetime import datetime
-from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import psycopg2
-import psycopg2.extras
+import pg8000
 import logging
 from datetime import datetime
 from typing import List, Dict, Any, Optional
@@ -19,12 +14,10 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Database configuration
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres@localhost:5432/teen_poll')
-
+# Initialize FastAPI app
 app = FastAPI(title="Teen Poll API", version="1.0.0")
 
-# Add CORS middleware
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # In production, restrict this to your frontend domain
@@ -33,42 +26,70 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Database connection function
 def get_db_connection():
-    """Get a database connection"""
+    """Get database connection"""
     try:
-        conn = psycopg2.connect(DATABASE_URL)
+        conn = pg8000.connect(os.getenv("DATABASE_URL"))
         return conn
     except Exception as e:
         logger.error(f"Database connection failed: {e}")
-        raise HTTPException(status_code=500, detail="Database connection failed")
+        return None
 
-def execute_query(query, params=None, fetch=True):
-    """Execute a database query"""
+# Database query execution function
+def execute_query(query: str, params: tuple = None, fetch: bool = True):
+    """Execute database query"""
     conn = None
     try:
         conn = get_db_connection()
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        if not conn:
+            raise Exception("Could not establish database connection")
         
+        cursor = conn.cursor()
         if params:
             cursor.execute(query, params)
         else:
             cursor.execute(query)
         
         if fetch:
-            result = cursor.fetchall()
-            return [dict(row) for row in result]
+            # Get column names
+            columns = [desc[0] for desc in cursor.description]
+            # Fetch all rows and convert to list of dicts
+            rows = cursor.fetchall()
+            results = []
+            for row in rows:
+                results.append(dict(zip(columns, row)))
+            return results
         else:
             conn.commit()
-            return cursor.rowcount
+            return True
             
     except Exception as e:
+        logger.error(f"Database operation failed: {e}")
         if conn:
             conn.rollback()
-        logger.error(f"Database operation failed: {e}")
         raise HTTPException(status_code=500, detail=f"Database operation failed: {e}")
     finally:
         if conn:
             conn.close()
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database connection pool on startup"""
+    # The original code had db_pool, but it's removed.
+    # This function is kept as it was not explicitly removed by the new_code.
+    # However, the new_code removed the db_pool logic.
+    # This function will now effectively do nothing if db_pool is removed.
+    pass
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Close database connection pool on shutdown"""
+    # The original code had db_pool, but it's removed.
+    # This function is kept as it was not explicitly removed by the new_code.
+    # However, the new_code removed the db_pool logic.
+    # This function will now effectively do nothing if db_pool is removed.
+    pass
 
 # Request validation functions (replacing pydantic)
 def validate_user_request(data: Dict[str, Any]) -> Dict[str, Any]:
