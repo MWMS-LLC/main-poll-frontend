@@ -50,42 +50,25 @@ def get_db_connection():
             logger.error("DATABASE_URL environment variable is not set!")
             return None
         
-        # Parse the DATABASE_URL manually to avoid pg8000 parsing issues
-        if database_url.startswith('postgresql://'):
-            # Remove postgresql:// prefix
-            url_parts = database_url[12:].split('@')
-            if len(url_parts) == 2:
-                user_pass = url_parts[0].split(':')
-                host_port_db = url_parts[1].split('/')
-                
-                if len(user_pass) >= 2 and len(host_port_db) >= 2:
-                    user = user_pass[0]
-                    password = user_pass[1]
-                    host_port = host_port_db[0].split(':')
-                    host = host_port[0]
-                    port = int(host_port[1]) if len(host_port) > 1 else 5432
-                    database = host_port_db[1]
-                    
-                    logger.info(f"Parsed connection: host={host}, port={port}, database={database}, user={user}")
-                    
-                    conn = pg8000.connect(
-                        host=host,
-                        port=port,
-                        database=database,
-                        user=user,
-                        password=password
-                    )
-                    logger.info("Database connection successful!")
-                    return conn
-                else:
-                    logger.error("Failed to parse DATABASE_URL components")
-                    return None
-            else:
-                logger.error("Invalid DATABASE_URL format")
-                return None
-        else:
-            logger.error("DATABASE_URL must start with postgresql://")
-            return None
+        # Use the correct database connection parameters from Render
+        # Based on the database settings, not parsing the URL
+        host = "dpg-d2gfof75r7bs73f1uc0g-a"
+        port = 5432
+        database = "mwms_teen_poll"
+        user = "mwms_teen_poll_user"
+        password = "CTF1UxZpzk4E2vhevF5GE3NEAuFBxPiF"
+        
+        logger.info(f"Using direct connection: host={host}, port={port}, database={database}, user={user}")
+        
+        conn = pg8000.connect(
+            host=host,
+            port=port,
+            database=database,
+            user=user,
+            password=password
+        )
+        logger.info("Database connection successful!")
+        return conn
             
     except Exception as e:
         logger.error(f"Database connection failed: {e}")
