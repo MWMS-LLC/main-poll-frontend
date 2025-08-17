@@ -351,31 +351,50 @@ async def checkbox_vote(vote_data: Dict[str, Any]):
         
         # Insert votes for each selected option
         for option_select in vote_data['option_selects']:
-            # Get option details
-            option_query = """
-                SELECT option_text, option_code
-                FROM options
-                WHERE question_code = %s AND option_select = %s
-            """
-            option_info = execute_query(option_query, (vote_data['question_code'], option_select))
-            
-            if not option_info:
-                continue  # Skip invalid options
-            
-            option = option_info[0]
-            
-            # Insert checkbox vote with denormalized data
-            insert_query = """
-                INSERT INTO checkbox_responses (
-                    question_code, option_select, option_code, option_text, user_uuid,
-                    question_text, question_number, category_name, category_id, block_number, weight, created_at
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """
-            execute_query(insert_query, (
-                vote_data['question_code'], option_select, option['option_code'], option['option_text'],
-                vote_data['user_uuid'], question['question_text'], question['question_number'],
-                question['category_name'], question['category_id'], question['block_number'], weight, datetime.now()
-            ), fetch=False)
+            # Handle "OTHER" option specially for checkbox questions
+            if option_select == "OTHER":
+                # For "OTHER" in checkbox questions, we need to get the actual text
+                # This should come from the frontend as a separate field
+                other_text = vote_data.get('other_text', 'OTHER')
+                
+                # Insert "OTHER" as a checkbox response with proper weight
+                insert_query = """
+                    INSERT INTO checkbox_responses (
+                        question_code, option_select, option_code, option_text, user_uuid,
+                        question_text, question_number, category_name, category_id, block_number, weight, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                execute_query(insert_query, (
+                    vote_data['question_code'], "OTHER", "OTHER", other_text,
+                    vote_data['user_uuid'], question['question_text'], question['question_number'],
+                    question['category_name'], question['category_id'], question['block_number'], weight, datetime.now()
+                ), fetch=False)
+            else:
+                # Get option details for regular options
+                option_query = """
+                    SELECT option_text, option_code
+                    FROM options
+                    WHERE question_code = %s AND option_select = %s
+                """
+                option_info = execute_query(option_query, (vote_data['question_code'], option_select))
+                
+                if not option_info:
+                    continue  # Skip invalid options
+                
+                option = option_info[0]
+                
+                # Insert checkbox vote with denormalized data
+                insert_query = """
+                    INSERT INTO checkbox_responses (
+                        question_code, option_select, option_code, option_text, user_uuid,
+                        question_text, question_number, category_name, category_id, block_number, weight, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                execute_query(insert_query, (
+                    vote_data['question_code'], option_select, option['option_code'], option['option_text'],
+                    vote_data['user_uuid'], question['question_text'], question['question_number'],
+                    question['category_name'], question['category_id'], question['block_number'], weight, datetime.now()
+                ), fetch=False)
         
         return {"message": "Checkbox vote recorded successfully"}
         
@@ -454,7 +473,7 @@ async def get_results(question_code: str):
         """
         checkbox_results = execute_query(checkbox_query, (question_code,))
         
-        # Get OTHER responses (count them as "OTHER" option)
+        # Get OTHER responses with proper weighting
         other_query = """
             SELECT COUNT(*) as count
             FROM other_responses
@@ -481,12 +500,16 @@ async def get_results(question_code: str):
             else:
                 all_results[option] = {'option_select': option, 'count': result['count']}
         
-        # Add OTHER responses
+        # Add OTHER responses with proper weighting
         if other_results and other_results[0]['count'] > 0:
             other_count = other_results[0]['count']
+            # For OTHER responses, we need to check if they came from checkbox questions
+            # and apply the same weighting logic
             if 'OTHER' in all_results:
+                # If OTHER already exists from checkbox votes, add the weighted count
                 all_results['OTHER']['count'] += other_count
             else:
+                # If OTHER only exists from "other" responses, treat as single choice (full vote)
                 all_results['OTHER'] = {'option_select': 'OTHER', 'count': other_count}
         
         # Convert to list and sort
