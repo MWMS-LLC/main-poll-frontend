@@ -148,7 +148,7 @@ async def root():
 async def test():
     """Test endpoint to verify code is running"""
     logger.info("🔍 Test endpoint called - debug logging is working!")
-    return {"message": "Test endpoint working", "timestamp": str(datetime.datetime.now())}
+    return {"message": "Test endpoint working", "timestamp": str(datetime.now())}
 
 @app.get("/health")
 async def health():
