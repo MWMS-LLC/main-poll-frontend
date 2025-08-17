@@ -43,22 +43,32 @@ app.add_middleware(
 def get_db_connection():
     """Get database connection"""
     try:
-        database_url = os.getenv("DATABASE_URL")
-        logger.info(f"Attempting to connect to database with URL: {database_url}")
-        
-        if not database_url:
-            logger.error("DATABASE_URL environment variable is not set!")
-            return None
-        
-        # Use the correct database connection parameters from Render
-        # Based on the database settings, not parsing the URL
-        host = "dpg-d2gfof75r7bs73f1uc0g-a"
-        port = 5432
-        database = "mwms_teen_poll"
-        user = "mwms_teen_poll_user"
-        password = "CTF1UxZpzk4E2vhevF5GE3NEAuFBxPiF"
-        
-        logger.info(f"Using direct connection: host={host}, port={port}, database={database}, user={user}")
+        # For local testing, use local database
+        # For production, use DATABASE_URL environment variable
+        if os.getenv("ENVIRONMENT") == "production":
+            database_url = os.getenv("DATABASE_URL")
+            logger.info(f"Attempting to connect to production database with URL: {database_url}")
+            
+            if not database_url:
+                logger.error("DATABASE_URL environment variable is not set!")
+                return None
+            
+            # Use the correct database connection parameters from Render
+            host = "dpg-d2gfof75r7bs73f1uc0g-a"
+            port = 5432
+            database = "mwms_teen_poll"
+            user = "mwms_teen_poll_user"
+            password = "CTF1UxZpzk4E2vhevF5GE3NEAuFBxPiF"
+            
+            logger.info(f"Using production connection: host={host}, port={port}, database={database}, user={user}")
+        else:
+            # Local development - use local PostgreSQL
+            host = "localhost"
+            port = 5432
+            database = "teen_poll"
+            user = "1withyin"  # Your local username
+            password = ""  # No password for local
+            logger.info(f"Using local connection: host={host}, port={port}, database={database}, user={user}")
         
         conn = pg8000.connect(
             host=host,
@@ -438,6 +448,41 @@ async def submit_other(other_data: Dict[str, Any]):
     except Exception as e:
         logger.error(f"Other response recording failed: {e}")
         raise HTTPException(status_code=500, detail="Other response recording failed")
+
+@app.get("/api/soundtracks")
+async def get_soundtracks():
+    """Get all soundtracks"""
+    try:
+        query = """
+        SELECT song_id, song_title, mood_tag, playlist_tag, lyrics_snippet, 
+               featured, featured_order, file_url
+        FROM soundtracks 
+        ORDER BY featured_order, song_title
+        """
+        results = execute_query(query)
+        logger.info(f"Retrieved {len(results)} soundtracks")
+        return {"soundtracks": results}
+    except Exception as e:
+        logger.error(f"Error retrieving soundtracks: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve soundtracks: {str(e)}")
+
+@app.get("/api/soundtracks/playlists")
+async def get_playlists():
+    """Get all unique playlists"""
+    try:
+        query = """
+        SELECT DISTINCT unnest(string_to_array(playlist_tag, ', ')) as playlist
+        FROM soundtracks 
+        WHERE playlist_tag IS NOT NULL AND playlist_tag != ''
+        ORDER BY playlist
+        """
+        results = execute_query(query)
+        playlists = ['All Songs'] + [r['playlist'] for r in results]
+        logger.info(f"Retrieved {len(playlists)} playlists")
+        return {"playlists": playlists}
+    except Exception as e:
+        logger.error(f"Error retrieving playlists: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve playlists: {str(e)}")
 
 @app.get("/api/results/{question_code}")
 async def get_results(question_code: str):
