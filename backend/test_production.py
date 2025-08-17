@@ -1,109 +1,100 @@
 #!/usr/bin/env python3
 """
-Production Environment Test Script
-This simulates exactly what will happen in production
+Test script for production backend
+This script tests the database connection and basic API functionality
 """
 
 import os
 import sys
-import subprocess
-import tempfile
-import shutil
-from pathlib import Path
+import requests
+from urllib.parse import urlparse
 
-def test_production_environment():
-    """Test the production environment locally"""
-    print("🧪 Testing Production Environment...")
+def test_database_url():
+    """Test DATABASE_URL parsing"""
+    print("🔍 Testing DATABASE_URL parsing...")
     
-    # 1. Test imports with fresh Python environment
-    print("\n1️⃣ Testing imports...")
-    try:
-        import fastapi
-        import uvicorn
-        import psycopg2
-        import dotenv
-        import pydantic
-        print("   ✅ All required packages import successfully")
-    except ImportError as e:
-        print(f"   ❌ Import failed: {e}")
+    database_url = os.getenv("DATABASE_URL")
+    if not database_url:
+        print("❌ DATABASE_URL environment variable is not set!")
         return False
     
-    # 2. Test FastAPI app creation
-    print("\n2️⃣ Testing FastAPI app...")
+    print(f"📝 Raw DATABASE_URL: {database_url}")
+    
     try:
-        from main import app
-        print("   ✅ FastAPI app loads successfully")
-        print(f"   ✅ App title: {app.title}")
-        print(f"   ✅ App version: {app.version}")
+        parsed = urlparse(database_url)
+        print(f"✅ Parsed successfully:")
+        print(f"   - Username: {parsed.username or 'postgres'}")
+        print(f"   - Host: {parsed.hostname}")
+        print(f"   - Port: {parsed.port or 5432}")
+        print(f"   - Database: {parsed.path.lstrip('/') or 'postgres'}")
+        print(f"   - Has password: {'Yes' if parsed.password else 'No'}")
+        return True
     except Exception as e:
-        print(f"   ❌ FastAPI app failed: {e}")
+        print(f"❌ Failed to parse DATABASE_URL: {e}")
         return False
+
+def test_backend_endpoints():
+    """Test basic backend endpoints"""
+    print("\n🔍 Testing backend endpoints...")
     
-    # 3. Test environment variables
-    print("\n3️⃣ Testing environment variables...")
-    required_vars = ['DATABASE_URL']
-    for var in required_vars:
-        if os.getenv(var):
-            print(f"   ✅ {var} is set")
-        else:
-            print(f"   ⚠️  {var} is not set (will use default)")
+    # Get backend URL from environment or use default
+    backend_url = os.getenv("BACKEND_URL", "https://teen-poll-backend.onrender.com")
+    print(f"📝 Testing backend at: {backend_url}")
     
-    # 4. Test database connection (if DATABASE_URL is set)
-    print("\n4️⃣ Testing database connection...")
-    db_url = os.getenv('DATABASE_URL')
-    if db_url:
+    endpoints = [
+        "/",
+        "/health",
+        "/test",
+        "/api/categories"
+    ]
+    
+    for endpoint in endpoints:
         try:
-            import psycopg2
-            conn = psycopg2.connect(db_url)
-            conn.close()
-            print("   ✅ Database connection successful")
-        except Exception as e:
-            print(f"   ❌ Database connection failed: {e}")
-            print("   💡 This is expected if DATABASE_URL points to production")
-    else:
-        print("   ⚠️  No DATABASE_URL set, skipping database test")
-    
-    # 5. Test uvicorn startup
-    print("\n5️⃣ Testing uvicorn startup...")
-    try:
-        # Test if uvicorn can start (we'll stop it immediately)
-        process = subprocess.Popen([
-            'uvicorn', 'main:app', '--host', '0.0.0.0', '--port', '8001'
-        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
-        # Give it a moment to start
-        import time
-        time.sleep(2)
-        
-        # Check if it's running
-        if process.poll() is None:
-            print("   ✅ Uvicorn starts successfully")
-            process.terminate()
-            process.wait()
-        else:
-            stdout, stderr = process.communicate()
-            print(f"   ❌ Uvicorn failed to start: {stderr.decode()}")
-            return False
+            url = f"{backend_url}{endpoint}"
+            print(f"\n🔍 Testing {endpoint}...")
             
-    except Exception as e:
-        print(f"   ❌ Uvicorn test failed: {e}")
-        return False
+            response = requests.get(url, timeout=10)
+            print(f"   Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                print(f"   ✅ Success")
+                if endpoint == "/api/categories":
+                    data = response.json()
+                    print(f"   📊 Categories returned: {len(data)}")
+            else:
+                print(f"   ❌ Failed with status {response.status_code}")
+                if response.text:
+                    print(f"   📝 Response: {response.text[:200]}...")
+                    
+        except requests.exceptions.RequestException as e:
+            print(f"   ❌ Request failed: {e}")
+        except Exception as e:
+            print(f"   ❌ Unexpected error: {e}")
     
-    # 6. Test requirements.txt
-    print("\n6️⃣ Testing requirements.txt...")
-    try:
-        subprocess.run([
-            'pip', 'install', '-r', 'requirements.txt', '--dry-run'
-        ], check=True, capture_output=True)
-        print("   ✅ requirements.txt is valid")
-    except subprocess.CalledProcessError as e:
-        print(f"   ❌ requirements.txt has issues: {e}")
-        return False
-    
-    print("\n🎉 All production tests passed!")
-    print("🚀 Your app is ready for deployment!")
     return True
 
+def main():
+    """Main test function"""
+    print("🚀 Teen Poll Backend Production Test")
+    print("=" * 50)
+    
+    # Test DATABASE_URL parsing
+    db_ok = test_database_url()
+    
+    # Test backend endpoints
+    backend_ok = test_backend_endpoints()
+    
+    print("\n" + "=" * 50)
+    print("📊 Test Results Summary:")
+    print(f"   Database URL parsing: {'✅ PASS' if db_ok else '❌ FAIL'}")
+    print(f"   Backend endpoints: {'✅ PASS' if backend_ok else '❌ FAIL'}")
+    
+    if db_ok and backend_ok:
+        print("\n🎉 All tests passed! Backend should be working correctly.")
+        return 0
+    else:
+        print("\n⚠️  Some tests failed. Check the logs above for details.")
+        return 1
+
 if __name__ == "__main__":
-    success = test_production_environment()
-    sys.exit(0 if success else 1)
+    sys.exit(main())

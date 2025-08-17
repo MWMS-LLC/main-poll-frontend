@@ -41,7 +41,7 @@ def get_db_connection():
             # Use urllib.parse for more robust URL parsing
             parsed = urlparse(database_url)
             
-            # Extract components
+            # Extract components with better error handling
             user = parsed.username or "postgres"
             password = parsed.password or ""
             host = parsed.hostname or "localhost"
@@ -49,6 +49,12 @@ def get_db_connection():
             database = parsed.path.lstrip("/") or "postgres"
             
             logger.info(f"Production connection: host={host}, port={port}, database={database}, user={user}")
+            
+            # Additional validation
+            if not host:
+                logger.error("No host found in DATABASE_URL")
+                return None
+                
         except Exception as e:
             logger.error(f"Failed to parse DATABASE_URL: {e}")
             logger.error(f"URL parsing failed for: {database_url}")
@@ -105,10 +111,20 @@ def execute_query(query: str, params: tuple = None, fetch: bool = True):
         if conn:
             conn.close()
 
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {"message": "Teen Poll API is running", "status": "ok"}
+
 @app.get("/health")
 async def health():
     """Health check endpoint that doesn't require database"""
     return {"status": "healthy", "timestamp": str(datetime.now())}
+
+@app.get("/test")
+async def test():
+    """Test endpoint for debugging"""
+    return {"message": "Backend is running!", "timestamp": str(datetime.now())}
 
 @app.get("/api/categories")
 async def get_categories():
@@ -202,14 +218,6 @@ async def vote(vote_data: Dict[str, Any]):
     try:
         logger.info(f"Received vote request: {vote_data}")
         
-        # Validate vote data
-        if not isinstance(vote_data.get('question_code'), str):
-            raise HTTPException(status_code=400, detail="question_code must be a string")
-        if not isinstance(vote_data.get('option_select'), str):
-            raise HTTPException(status_code=400, detail="option_select must be a string")
-        if not isinstance(vote_data.get('user_uuid'), str):
-            raise HTTPException(status_code=400, detail="user_uuid must be a string")
-        
         # Get question and category details for denormalization
         question_query = """
             SELECT q.question_text, q.question_number, c.category_name, c.id as category_id, q.block_number
@@ -217,224 +225,284 @@ async def vote(vote_data: Dict[str, Any]):
             JOIN categories c ON q.category_id = c.id
             WHERE q.question_code = %s
         """
-        question_results = execute_query(question_query, (vote_data['question_code'],))
+        question_info = execute_query(question_query, (vote_data['question_code'],))
         
-        if not question_results:
-            raise HTTPException(status_code=400, detail="Question not found")
+        if not question_info:
+            logger.error(f"Question not found: {vote_data['question_code']}")
+            raise HTTPException(status_code=404, detail="Question not found")
         
-        question_info = question_results[0]
+        question = question_info[0]
+        logger.info(f"Question info: {question}")
         
-        # Insert the vote
-        vote_query = """
-            INSERT INTO responses (question_code, option_select, user_uuid, question_text, question_number, 
-                                 category_name, category_id, block_number, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        # Get option details
+        option_query = """
+            SELECT option_text, option_code
+            FROM options
+            WHERE question_code = %s AND option_select = %s
         """
-        execute_query(vote_query, (
-            vote_data['question_code'],
-            vote_data['option_select'],
-            vote_data['user_uuid'],
-            question_info['question_text'],
-            question_info['question_number'],
-            question_info['category_name'],
-            question_info['category_id'],
-            question_info['block_number'],
-            datetime.now()
+        option_info = execute_query(option_query, (vote_data['question_code'], vote_data['option_select']))
+        
+        if not option_info:
+            logger.error(f"Option not found: question_code={vote_data['question_code']}, option_select={vote_data['option_select']}")
+            raise HTTPException(status_code=404, detail="Option not found")
+        
+        option = option_info[0]
+        logger.info(f"Option info: {option}")
+        
+        # Insert vote with denormalized data
+        insert_query = """
+            INSERT INTO responses (
+                question_code, option_select, option_code, option_text, user_uuid,
+                question_text, question_number, category_name, category_id, block_number, created_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        execute_query(insert_query, (
+            vote_data['question_code'], vote_data['option_select'], option['option_code'], option['option_text'],
+            vote_data['user_uuid'], question['question_text'], question['question_number'],
+            question['category_name'], question['category_id'], question['block_number'], datetime.now()
         ), fetch=False)
         
+        logger.info(f"Vote recorded successfully for user {vote_data['user_uuid']}")
         return {"message": "Vote recorded successfully"}
         
     except Exception as e:
         logger.error(f"Vote recording failed: {e}")
-        raise HTTPException(status_code=500, detail="Failed to record vote")
+        logger.error(f"Exception type: {type(e)}")
+        logger.error(f"Exception details: {str(e)}")
+        raise HTTPException(status_code=500, detail="Vote recording failed")
 
 @app.post("/api/checkbox_vote")
 async def checkbox_vote(vote_data: Dict[str, Any]):
-    """Record a checkbox vote with multiple selections"""
+    """Record a checkbox vote with weights"""
     try:
-        logger.info(f"Received checkbox vote request: {vote_data}")
-        
-        # Validate vote data
-        if not isinstance(vote_data.get('question_code'), str):
-            raise HTTPException(status_code=400, detail="question_code must be a string")
-        if not isinstance(vote_data.get('selected_options'), list):
-            raise HTTPException(status_code=400, detail="selected_options must be a list")
-        if not isinstance(vote_data.get('user_uuid'), str):
-            raise HTTPException(status_code=400, detail="user_uuid must be a string")
-        
-        # Get question and category details
+        # Get question and category details for denormalization
         question_query = """
             SELECT q.question_text, q.question_number, c.category_name, c.id as category_id, q.block_number
             FROM questions q
             JOIN categories c ON q.category_id = c.id
             WHERE q.question_code = %s
         """
-        question_results = execute_query(question_query, (vote_data['question_code'],))
+        question_info = execute_query(question_query, (vote_data['question_code'],))
         
-        if not question_results:
-            raise HTTPException(status_code=400, detail="Question not found")
+        if not question_info:
+            raise HTTPException(status_code=404, detail="Question not found")
         
-        question_info = question_results[0]
+        question = question_info[0]
         
-        # Calculate weight for each option (equal distribution)
-        total_options = len(vote_data['selected_options'])
-        weight = 1.0 / total_options if total_options > 0 else 0
+        # Calculate weight for each option
+        weight = 1.0 / len(vote_data['option_selects'])
         
-        # Insert each selected option
-        for option in vote_data['selected_options']:
-            if option == "OTHER":
-                # Handle "OTHER" option - record in other_responses
-                other_query = """
-                    INSERT INTO other_responses (question_code, user_uuid, question_text, question_number,
-                                               category_name, category_id, block_number, created_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        # Insert votes for each selected option
+        for option_select in vote_data['option_selects']:
+            # Handle "OTHER" option specially for checkbox questions
+            if option_select == "OTHER":
+                # For "OTHER" in checkbox questions, we need to get the actual text
+                # This should come from the frontend as a separate field
+                other_text = vote_data.get('other_text', 'OTHER')
+                
+                # Insert "OTHER" as a checkbox response with proper weight
+                insert_query = """
+                    INSERT INTO checkbox_responses (
+                        question_code, option_select, option_code, option_text, user_uuid,
+                        question_text, question_number, category_name, category_id, block_number, weight, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
-                execute_query(other_query, (
-                    vote_data['question_code'],
-                    vote_data['user_uuid'],
-                    question_info['question_text'],
-                    question_info['question_number'],
-                    question_info['category_name'],
-                    question_info['category_id'],
-                    question_info['block_number'],
-                    datetime.now()
+                execute_query(insert_query, (
+                    vote_data['question_code'], "OTHER", "OTHER", other_text,
+                    vote_data['user_uuid'], question['question_text'], question['question_number'],
+                    question['category_name'], question['category_id'], question['block_number'], weight, datetime.now()
                 ), fetch=False)
             else:
-                # Record in checkbox_responses with calculated weight
-                checkbox_query = """
-                    INSERT INTO checkbox_responses (question_code, option_select, user_uuid, weight,
-                                                  question_text, question_number, category_name, category_id, block_number, created_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                # Get option details for regular options
+                option_query = """
+                    SELECT option_text, option_code
+                    FROM options
+                    WHERE question_code = %s AND option_select = %s
                 """
-                execute_query(checkbox_query, (
-                    vote_data['question_code'],
-                    option,
-                    vote_data['user_uuid'],
-                    weight,
-                    question_info['question_text'],
-                    question_info['question_number'],
-                    question_info['category_name'],
-                    question_info['category_id'],
-                    question_info['block_number'],
-                    datetime.now()
+                option_info = execute_query(option_query, (vote_data['question_code'], option_select))
+                
+                if not option_info:
+                    continue  # Skip invalid options
+                
+                option = option_info[0]
+                
+                # Insert checkbox vote with denormalized data
+                insert_query = """
+                    INSERT INTO checkbox_responses (
+                        question_code, option_select, option_code, option_text, user_uuid,
+                        question_text, question_number, category_name, category_id, block_number, weight, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+                execute_query(insert_query, (
+                    vote_data['question_code'], option_select, option['option_code'], option['option_text'],
+                    vote_data['user_uuid'], question['question_text'], question['question_number'],
+                    question['category_name'], question['category_id'], question['block_number'], weight, datetime.now()
                 ), fetch=False)
         
         return {"message": "Checkbox vote recorded successfully"}
         
     except Exception as e:
         logger.error(f"Checkbox vote recording failed: {e}")
-        raise HTTPException(status_code=500, detail="Failed to record checkbox vote")
+        raise HTTPException(status_code=500, detail="Checkbox vote recording failed")
 
-@app.get("/api/results/{question_code}")
-async def get_results(question_code: str):
-    """Get results for a specific question"""
+@app.post("/api/other")
+async def submit_other(other_data: Dict[str, Any]):
+    """Record a free-text response"""
     try:
-        # Get question details
-        question_query = "SELECT * FROM questions WHERE question_code = %s"
-        question_results = execute_query(question_query, (question_code,))
+        # Get question and category details for denormalization
+        question_query = """
+            SELECT q.question_text, q.question_number, c.category_name, c.id as category_id, q.block_number
+            FROM questions q
+            JOIN categories c ON q.category_id = c.id
+            WHERE q.question_code = %s
+        """
+        question_info = execute_query(question_query, (other_data['question_code'],))
         
-        if not question_results:
+        if not question_info:
             raise HTTPException(status_code=404, detail="Question not found")
         
-        question = question_results[0]
+        question = question_info[0]
         
-        if question['question_type'] == 'checkbox':
-            # For checkbox questions, get results from checkbox_responses
-            results_query = """
-                SELECT option_select, COUNT(*) as count, SUM(weight) as total_weight
-                FROM checkbox_responses 
-                WHERE question_code = %s 
-                GROUP BY option_select
-                ORDER BY total_weight DESC
-            """
-            results = execute_query(results_query, (question_code,))
-            
-            # Calculate total responses
-            total_responses = sum(result['total_weight'] for result in results)
-            
-            # Format results
-            formatted_results = []
-            for result in results:
-                percentage = (result['total_weight'] / total_responses * 100) if total_responses > 0 else 0
-                formatted_results.append({
-                    "option": result['option_select'],
-                    "count": result['total_weight'],
-                    "percentage": round(percentage, 1)
-                })
-            
-            return {
-                "question_code": question_code,
-                "question_text": question['question_text'],
-                "question_type": "checkbox",
-                "results": formatted_results,
-                "total_responses": total_responses
-            }
-            
-        else:
-            # For single-choice questions, get results from responses
-            results_query = """
-                SELECT option_select, COUNT(*) as count
-                FROM responses 
-                WHERE question_code = %s 
-                GROUP BY option_select
-                ORDER BY count DESC
-            """
-            results = execute_query(results_query, (question_code,))
-            
-            # Calculate total responses
-            total_responses = sum(result['count'] for result in results)
-            
-            # Format results
-            formatted_results = []
-            for result in results:
-                percentage = (result['count'] / total_responses * 100) if total_responses > 0 else 0
-                formatted_results.append({
-                    "option": result['option_select'],
-                    "count": result['count'],
-                    "percentage": round(percentage, 1)
-                })
-            
-            return {
-                "question_code": question_code,
-                "question_text": question['question_text'],
-                "question_type": "single_choice",
-                "results": formatted_results,
-                "total_responses": total_responses
-            }
-            
+        # Insert other response with denormalized data
+        insert_query = """
+            INSERT INTO other_responses (
+                question_code, user_uuid, other_text, question_text, question_number,
+                category_name, category_id, block_number, created_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        execute_query(insert_query, (
+            other_data['question_code'], other_data['user_uuid'], other_data['other_text'],
+            question['question_text'], question['question_number'], question['category_name'],
+            question['category_id'], question['block_number'], datetime.now()
+        ), fetch=False)
+        
+        return {"message": "Other response recorded successfully"}
+        
     except Exception as e:
-        logger.error(f"Failed to get results: {e}")
-        raise HTTPException(status_code=500, detail="Failed to retrieve results")
+        logger.error(f"Other response recording failed: {e}")
+        raise HTTPException(status_code=500, detail="Other response recording failed")
 
 @app.get("/api/soundtracks")
 async def get_soundtracks():
     """Get all soundtracks"""
     try:
-        query = "SELECT * FROM soundtracks ORDER BY id"
+        query = """
+        SELECT song_id, song_title, mood_tag, playlist_tag, lyrics_snippet, 
+               featured, featured_order, file_url
+        FROM soundtracks 
+        ORDER BY featured_order, song_title
+        """
         results = execute_query(query)
         logger.info(f"Retrieved {len(results)} soundtracks")
-        return results
+        return {"soundtracks": results}
     except Exception as e:
         logger.error(f"Error retrieving soundtracks: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve soundtracks: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve soundtracks: {str(e)}")
 
 @app.get("/api/soundtracks/playlists")
 async def get_playlists():
     """Get all unique playlists"""
     try:
-        query = "SELECT DISTINCT playlist_tag FROM soundtracks WHERE playlist_tag IS NOT NULL ORDER BY playlist_tag"
+        query = """
+        SELECT DISTINCT unnest(string_to_array(playlist_tag, ', ')) as playlist
+        FROM soundtracks 
+        WHERE playlist_tag IS NOT NULL AND playlist_tag != ''
+        ORDER BY playlist
+        """
         results = execute_query(query)
-        playlists = [result['playlist_tag'] for result in results]
+        playlists = ['All Songs'] + [r['playlist'] for r in results]
         logger.info(f"Retrieved {len(playlists)} playlists")
-        return playlists
+        return {"playlists": playlists}
     except Exception as e:
         logger.error(f"Error retrieving playlists: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve playlists: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve playlists: {str(e)}")
 
-@app.get("/test")
-async def test():
-    """Test endpoint for debugging"""
-    return {"message": "Backend is running!", "timestamp": str(datetime.now())}
+@app.get("/api/results/{question_code}")
+async def get_results(question_code: str):
+    """Get results for a specific question"""
+    try:
+        # Check if it's a checkbox question by looking at the question type
+        question_query = "SELECT * FROM questions WHERE question_code = %s"
+        question_info = execute_query(question_query, (question_code,))
+        
+        if not question_info:
+            raise HTTPException(status_code=404, detail="Question not found")
+        
+        question = question_info[0]
+        
+        # For now, assume all questions can have both types of responses
+        # Get single-choice responses
+        single_query = """
+            SELECT option_select, COUNT(*) as count
+            FROM responses
+            WHERE question_code = %s
+            GROUP BY option_select
+            ORDER BY option_select
+        """
+        single_results = execute_query(single_query, (question_code,))
+        
+        # Get checkbox responses (sum of weights)
+        checkbox_query = """
+            SELECT option_select, SUM(weight) as count
+            FROM checkbox_responses
+            WHERE question_code = %s
+            GROUP BY option_select
+            ORDER BY option_select
+        """
+        checkbox_results = execute_query(checkbox_query, (question_code,))
+        
+        # Get OTHER responses with proper weighting
+        other_query = """
+            SELECT COUNT(*) as count
+            FROM other_responses
+            WHERE question_code = %s
+        """
+        other_results = execute_query(other_query, (question_code,))
+        
+        # Combine results
+        all_results = {}
+        
+        # Add single-choice results
+        for result in single_results:
+            option = result['option_select']
+            if option in all_results:
+                all_results[option]['count'] += result['count']
+            else:
+                all_results[option] = {'option_select': option, 'count': result['count']}
+        
+        # Add checkbox results
+        for result in checkbox_results:
+            option = result['option_select']
+            if option in all_results:
+                all_results[option]['count'] += result['count']
+            else:
+                all_results[option] = {'option_select': option, 'count': result['count']}
+        
+        # Add OTHER responses with proper weighting
+        if other_results and other_results[0]['count'] > 0:
+            other_count = other_results[0]['count']
+            # For OTHER responses, we need to check if they came from checkbox questions
+            # and apply the same weighting logic
+            if 'OTHER' in all_results:
+                # If OTHER already exists from checkbox votes, don't double-count
+                # The checkbox_responses already includes the properly weighted OTHER votes
+                pass
+            else:
+                # If OTHER only exists from "other" responses, treat as single choice (full vote)
+                all_results['OTHER'] = {'option_select': 'OTHER', 'count': other_count}
+        
+        # Convert to list and sort
+        final_results = list(all_results.values())
+        final_results.sort(key=lambda x: x['option_select'])
+        
+        return {
+            "question_code": question_code,
+            "results": final_results
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching results: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching results")
 
 if __name__ == "__main__":
     import uvicorn

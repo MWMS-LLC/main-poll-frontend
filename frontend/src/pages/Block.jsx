@@ -96,7 +96,16 @@ const Block = () => {
       {/* Hamburger Menu */}
       <HamburgerMenu />
       
-
+      {/* Header Section */}
+      <div style={styles.headerSection}>
+        <div style={styles.backButton} onClick={() => navigate('/')}>
+          ← Back to Categories
+        </div>
+        <h1 style={styles.pageTitle}>Questions</h1>
+        <div style={styles.pageSubtitle}>
+          Answer the questions below to see how others feel
+        </div>
+      </div>
 
       {/* Questions Container */}
       <div style={styles.questionsContainer}>
@@ -335,6 +344,41 @@ const styles = {
     fontSize: '16px',
     fontWeight: 'bold',
     transition: 'all 0.3s ease'
+  },
+
+  headerSection: {
+    width: '100%',
+    maxWidth: '800px',
+    marginTop: '40px',
+    textAlign: 'center',
+    color: 'white',
+    padding: '20px',
+    borderRadius: '15px',
+    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
+    backdropFilter: 'blur(10px)'
+  },
+
+  backButton: {
+    fontSize: '16px',
+    color: 'rgba(255, 255, 255, 0.7)',
+    cursor: 'pointer',
+    marginBottom: '15px',
+    transition: 'color 0.3s ease'
+  },
+
+  pageTitle: {
+    fontSize: '36px',
+    fontWeight: 'bold',
+    marginBottom: '10px',
+    textShadow: '0 0 15px rgba(255, 255, 255, 0.3)'
+  },
+
+  pageSubtitle: {
+    fontSize: '18px',
+    color: 'rgba(255, 255, 255, 0.7)',
+    textShadow: '0 0 10px rgba(255, 255, 255, 0.2)'
   }
 }
 

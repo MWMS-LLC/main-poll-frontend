@@ -1,4 +1,6 @@
 // Soundtrack service for managing music data and playlist integration
+import API_BASE from '../config.js'
+
 class SoundtrackService {
   constructor() {
     this.soundtracks = []
@@ -10,7 +12,7 @@ class SoundtrackService {
   async loadSoundtracks() {
     try {
       // Fetch soundtracks from backend API
-      const response = await fetch('http://localhost:8000/api/soundtracks')
+      const response = await fetch(`${API_BASE}/api/soundtracks`)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
@@ -45,7 +47,7 @@ class SoundtrackService {
   // Load playlists from backend API
   async loadPlaylists() {
     try {
-      const response = await fetch('http://localhost:8000/api/soundtracks/playlists')
+      const response = await fetch(`${API_BASE}/api/soundtracks/playlists`)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
