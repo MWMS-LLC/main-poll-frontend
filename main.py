@@ -57,18 +57,48 @@ def get_db_connection():
             # Parse DATABASE_URL to get connection parameters
             # Format: postgresql://username:password@host:port/database
             try:
+                logger.info(f"Raw DATABASE_URL: {database_url}")
+                
                 # Remove postgresql:// prefix
                 url_without_prefix = database_url.replace("postgresql://", "")
+                logger.info(f"URL without prefix: {url_without_prefix}")
+                
                 # Split user:pass@host:port/database
-                user_pass_part, host_port_db = url_without_prefix.split("@")
-                user, password = user_pass_part.split(":")
-                host_port, database = host_port_db.split("/")
-                host, port = host_port.split(":")
+                if "@" not in url_without_prefix:
+                    logger.error("No @ found in DATABASE_URL")
+                    return None
+                    
+                user_pass_part, host_port_db = url_without_prefix.split("@", 1)
+                logger.info(f"User/pass part: {user_pass_part}")
+                logger.info(f"Host/port/db part: {host_port_db}")
+                
+                if ":" not in user_pass_part:
+                    logger.error("No : found in user:password part")
+                    return None
+                    
+                user, password = user_pass_part.split(":", 1)
+                logger.info(f"User: {user}")
+                logger.info(f"Password: {'*' * len(password)}")
+                
+                if "/" not in host_port_db:
+                    logger.error("No / found in host:port/database part")
+                    return None
+                    
+                host_port, database = host_port_db.split("/", 1)
+                logger.info(f"Host/port: {host_port}")
+                logger.info(f"Database: {database}")
+                
+                if ":" not in host_port:
+                    logger.error("No : found in host:port part")
+                    return None
+                    
+                host, port = host_port.split(":", 1)
                 port = int(port)
                 
                 logger.info(f"Using production connection: host={host}, port={port}, database={database}, user={user}")
             except Exception as e:
                 logger.error(f"Failed to parse DATABASE_URL: {e}")
+                logger.error(f"Full DATABASE_URL: {database_url}")
                 return None
         else:
             # Local development - use local PostgreSQL
