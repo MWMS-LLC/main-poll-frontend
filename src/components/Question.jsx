@@ -337,7 +337,7 @@ const Question = ({ question, onAnswered }) => {
           onClick={handleCheckboxSubmit}
           style={{
             ...styles.submitButton,
-            background: question.color_code ? `${question.color_code}DD` : '#2D7D7A'
+            background: '#2D7D7A'
           }}
         >
           Submit

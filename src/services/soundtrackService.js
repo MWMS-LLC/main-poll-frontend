@@ -6,40 +6,70 @@ class SoundtrackService {
     this.loaded = false
   }
 
-  // Load soundtrack data from static data (no external file loading)
+  // Load soundtrack data from CSV data
   async loadSoundtracks() {
     try {
-      // Use static soundtrack data instead of loading from file
+      // Use the actual soundtrack data from the CSV
       const data = [
         {
-          song_id: 1,
-          song_title: "My World My Say Theme",
-          mood_tag: "Believe",
-          playlist_tag: "Believe, Inspiring",
-          lyrics_snippet: "You have the power to change your world...",
+          song_id: "STR_01",
+          song_title: "Spark Still Rise (Male Rap)",
+          mood_tag: "bitter, believing",
+          playlist_tag: "Spiral, Believe, Lowkey",
+          lyrics_snippet: "You ain't gotta fake the fire. Even sparks can light the sky.",
           featured: "TRUE",
           featured_order: 1,
-          file_url: "/My World My Say Theme.mp3"
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/sparks-still-rise.mp3"
         },
         {
-          song_id: 2,
-          song_title: "My Voice",
-          mood_tag: "Soft",
-          playlist_tag: "Soft, Lowkey",
-          lyrics_snippet: "Finding my voice in the silence...",
+          song_id: "STR_02",
+          song_title: "Spark Still Rise (Female Rap)",
+          mood_tag: "bitter, believing",
+          playlist_tag: "Spiral, Believe, Lowkey",
+          lyrics_snippet: "You ain't gotta fake the fire. Even sparks can light the sky.",
           featured: "TRUE",
           featured_order: 2,
-          file_url: "/my-voice.mp3"
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/sparks-still-rise+Girl.mp3"
         },
         {
-          song_id: 3,
-          song_title: "Sparks Still Rise",
-          mood_tag: "Inspiring",
-          playlist_tag: "Inspiring, Believe",
-          lyrics_snippet: "Even in darkness, sparks still rise...",
+          song_id: "DP_01",
+          song_title: "Daring Path (Female V1)",
+          mood_tag: "believing",
+          playlist_tag: "Believe",
+          lyrics_snippet: "I don't need small mirrors to shine. I don't need blind eyes to define.",
           featured: "TRUE",
           featured_order: 3,
-          file_url: "/sparks-still-rise.mp3"
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/daring+path.mp3"
+        },
+        {
+          song_id: "DP_02",
+          song_title: "Daring Path (Female V2)",
+          mood_tag: "believing",
+          playlist_tag: "Believe",
+          lyrics_snippet: "I don't need small mirrors to shine. I don't need blind eyes to define.",
+          featured: "TRUE",
+          featured_order: 4,
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/daring+path+2.mp3"
+        },
+        {
+          song_id: "DBNF_01",
+          song_title: "Deleted But Not Forgotten (Female)",
+          mood_tag: "bitter, believing",
+          playlist_tag: "Hurt, Believe, Spiral",
+          lyrics_snippet: "Delete the post, But Not Forgotten. I'm still here, still me, still real.",
+          featured: "TRUE",
+          featured_order: 5,
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/deleted%2C-but-not-forgotten.mp3"
+        },
+        {
+          song_id: "MVMW_01",
+          song_title: "My Voice at My World My Say",
+          mood_tag: "soft, believing",
+          playlist_tag: "Spiral, Believe",
+          lyrics_snippet: "Somewhere, someone's feeling just like this",
+          featured: "TRUE",
+          featured_order: 13,
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/my-voice.mp3"
         }
       ]
       
