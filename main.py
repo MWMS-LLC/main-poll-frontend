@@ -45,7 +45,8 @@ def get_db_connection():
     try:
         # For local testing, use local database
         # For production, use DATABASE_URL environment variable
-        if os.getenv("ENVIRONMENT") == "production":
+        # Check if we're in production (Render sets DATABASE_URL)
+        if os.getenv("DATABASE_URL"):
             database_url = os.getenv("DATABASE_URL")
             logger.info(f"Attempting to connect to production database with URL: {database_url}")
             
@@ -53,14 +54,22 @@ def get_db_connection():
                 logger.error("DATABASE_URL environment variable is not set!")
                 return None
             
-            # Use the correct database connection parameters from Render
-            host = "dpg-d2gfof75r7bs73f1uc0g-a"
-            port = 5432
-            database = "mwms_teen_poll"
-            user = "mwms_teen_poll_user"
-            password = "CTF1UxZpzk4E2vhevF5GE3NEAuFBxPiF"
-            
-            logger.info(f"Using production connection: host={host}, port={port}, database={database}, user={user}")
+            # Parse DATABASE_URL to get connection parameters
+            # Format: postgresql://username:password@host:port/database
+            try:
+                # Remove postgresql:// prefix
+                url_without_prefix = database_url.replace("postgresql://", "")
+                # Split user:pass@host:port/database
+                user_pass_part, host_port_db = url_without_prefix.split("@")
+                user, password = user_pass_part.split(":")
+                host_port, database = host_port_db.split("/")
+                host, port = host_port.split(":")
+                port = int(port)
+                
+                logger.info(f"Using production connection: host={host}, port={port}, database={database}, user={user}")
+            except Exception as e:
+                logger.error(f"Failed to parse DATABASE_URL: {e}")
+                return None
         else:
             # Local development - use local PostgreSQL
             host = "localhost"
@@ -196,7 +205,7 @@ async def test():
 @app.get("/health")
 async def health():
     """Health check endpoint that doesn't require database"""
-    return {"status": "healthy", "timestamp": str(datetime.datetime.now())}
+    return {"status": "healthy", "timestamp": str(datetime.now())}
 
 @app.get("/api/categories")
 async def get_categories():
