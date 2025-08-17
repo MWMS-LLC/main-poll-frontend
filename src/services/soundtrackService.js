@@ -355,6 +355,11 @@ class SoundtrackService {
           }
         })
       })
+      
+      // Sort playlists alphabetically (keep "All Songs" first)
+      const allSongs = this.playlists.shift() // Remove "All Songs"
+      this.playlists.sort() // Sort remaining playlists alphabetically
+      this.playlists.unshift(allSongs) // Put "All Songs" back at the beginning
 
       this.loaded = true
       return this.soundtracks
