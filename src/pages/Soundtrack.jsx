@@ -381,7 +381,7 @@ const styles = {
     boxShadow: '0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(78, 205, 196, 0.2)',
     backdropFilter: 'blur(15px)',
     position: 'fixed',
-    bottom: '20px',
+    bottom: '0px',
     left: '50%',
     transform: 'translateX(-50%)',
     zIndex: 1000

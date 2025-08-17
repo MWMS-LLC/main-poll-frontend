@@ -145,7 +145,7 @@ class SoundtrackService {
           song_id: "THM_1",
           song_title: "Theme Song (Male Inspiring Rap)",
           mood_tag: "inspiring",
-          playlist_tag: "Theme_Song",
+          playlist_tag: "Theme Song",
           lyrics_snippet: "My World, My Say",
           featured: "TRUE",
           featured_order: 14,
@@ -155,7 +155,7 @@ class SoundtrackService {
           song_id: "THM_2",
           song_title: "Theme Song (Girl HipHop)",
           mood_tag: "spicy",
-          playlist_tag: "Theme_Song",
+          playlist_tag: "Theme Song",
           lyrics_snippet: "My World, My Say",
           featured: "TRUE",
           featured_order: 15,
@@ -270,6 +270,66 @@ class SoundtrackService {
           featured: "TRUE",
           featured_order: 37,
           file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Some+Days+Still+Count+(emo).mp3"
+        },
+        {
+          song_id: "AI_RAP_DUET",
+          song_title: "We Name the Goal (Duet Rap)",
+          mood_tag: "believing, inspiring",
+          playlist_tag: "Theme Song, AI and My Future",
+          lyrics_snippet: "We shape the world by what we say.",
+          featured: "TRUE",
+          featured_order: 19,
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/We+Name+the+Goal+(Two+Voice).mp3"
+        },
+        {
+          song_id: "AI_RAP",
+          song_title: "We Name the Goal (Rap)",
+          mood_tag: "believing, inspiring",
+          playlist_tag: "Theme Song, AI and My Future",
+          lyrics_snippet: "We shape the world by what we say.",
+          featured: "TRUE",
+          featured_order: 20,
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/We+Name+the+Goal.mp3"
+        },
+        {
+          song_id: "AI_RA_REG",
+          song_title: "We Name the Goal (Reggaeton)",
+          mood_tag: "believing, inspiring",
+          playlist_tag: "Theme Song, AI and My Future",
+          lyrics_snippet: "Mi voz, mi mundo, that's my role",
+          featured: "TRUE",
+          featured_order: 21,
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/We+Name+the+Goal+(Female+Reggaeton).mp3"
+        },
+        {
+          song_id: "THM_3",
+          song_title: "Theme Song (Girl Rap)",
+          mood_tag: "rap",
+          playlist_tag: "Theme Song",
+          lyrics_snippet: "My World, My Say",
+          featured: "TRUE",
+          featured_order: 16,
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(+Girl+Inspiring+Rap).mp3"
+        },
+        {
+          song_id: "THM_4",
+          song_title: "Theme Song (Children Choir)",
+          mood_tag: "inspiring",
+          playlist_tag: "Theme Song",
+          lyrics_snippet: "My World, My Say",
+          featured: "TRUE",
+          featured_order: 17,
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(Children+Choir).mp3"
+        },
+        {
+          song_id: "THM_5",
+          song_title: "Theme Song (Girl HipHop 2)",
+          mood_tag: "inspiring",
+          playlist_tag: "Theme Song",
+          lyrics_snippet: "My World, My Say",
+          featured: "TRUE",
+          featured_order: 18,
+          file_url: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(Girl+HipHop+2).mp3"
         }
       ]
       
