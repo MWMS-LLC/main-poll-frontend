@@ -33,7 +33,13 @@ print("🚀 TEEN POLL API STARTING UP - PRINT STATEMENT TEST!")
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict this to your frontend domain
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://teen.myworldmysay.com",
+        "https://myworldmysay.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

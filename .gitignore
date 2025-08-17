@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Python
 __pycache__/
 *.py[cod]
@@ -26,10 +27,22 @@ teen_venv/
 venv/
 env/
 ENV/
+=======
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production build
+dist/
+build/
+>>>>>>> 6a225b276351c1f75d59d2cb1cf18fb2b6b911d0
 
 # Environment variables
 .env
 .env.local
+<<<<<<< HEAD
 .env.*.local
 
 # Database
@@ -38,10 +51,18 @@ ENV/
 *.sqlite3
 
 # IDE
+=======
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+>>>>>>> 6a225b276351c1f75d59d2cb1cf18fb2b6b911d0
 .vscode/
 .idea/
 *.swp
 *.swo
+<<<<<<< HEAD
 *~
 
 # OS
@@ -60,3 +81,40 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+=======
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+>>>>>>> 6a225b276351c1f75d59d2cb1cf18fb2b6b911d0
