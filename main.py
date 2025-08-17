@@ -17,6 +17,10 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app
 app = FastAPI(title="Teen Poll API", version="1.0.0")
 
+# Add startup message
+logger.info("🚀 TEEN POLL API STARTING UP - DEBUG LOGGING TEST!")
+print("🚀 TEEN POLL API STARTING UP - PRINT STATEMENT TEST!")
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
