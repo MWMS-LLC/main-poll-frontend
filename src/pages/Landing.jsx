@@ -26,7 +26,7 @@ const Landing = () => {
   const [showAgeDropdown, setShowAgeDropdown] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedAge, setSelectedAge] = useState('')
-  const [isSoundOn, setIsSoundOn] = useState(false)
+
   const [showSharing, setShowSharing] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const [socialHandles, setSocialHandles] = useState({})
@@ -226,7 +226,7 @@ const Landing = () => {
   return (
     <div style={styles.container}>
       {/* Hamburger Menu */}
-      <HamburgerMenu isSoundOn={isSoundOn} onToggleSound={() => setIsSoundOn(!isSoundOn)} />
+      <HamburgerMenu />
       
       {/* Age Verification Modal */}
       {showAgeDropdown && (

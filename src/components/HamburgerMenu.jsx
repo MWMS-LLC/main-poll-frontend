@@ -1,10 +1,14 @@
 import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useAudio } from '../contexts/AudioContext.jsx'
 
-const HamburgerMenu = ({ isSoundOn, onToggleSound }) => {
+const HamburgerMenu = () => {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  
+  // Use global audio context for theme song state
+  const { isThemeSongOn, toggleThemeSong } = useAudio()
 
   const handleNavigate = (path) => {
     setOpen(false)
@@ -74,13 +78,13 @@ const HamburgerMenu = ({ isSoundOn, onToggleSound }) => {
             <label style={styles.toggleSwitch}>
               <input 
                 type="checkbox" 
-                checked={isSoundOn} 
-                onChange={onToggleSound} 
+                checked={isThemeSongOn} 
+                onChange={toggleThemeSong} 
                 style={styles.toggleInput} 
               />
               <div style={{
                 ...styles.toggleSlider,
-                backgroundColor: isSoundOn ? '#4ECDC4' : '#95A5A6'
+                backgroundColor: isThemeSongOn ? '#4ECDC4' : '#95A5A6'
               }}></div>
             </label>
           </div>

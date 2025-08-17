@@ -5,7 +5,7 @@ import Footer from '../components/Footer.jsx'
 
 const FAQ = () => {
   const navigate = useNavigate()
-  const [isSoundOn, setIsSoundOn] = useState(false)
+
   const [openFaq, setOpenFaq] = useState(null)
 
   const faqData = [
@@ -50,7 +50,7 @@ const FAQ = () => {
   return (
     <div style={styles.container}>
       {/* Hamburger Menu */}
-      <HamburgerMenu isSoundOn={isSoundOn} onToggleSound={() => setIsSoundOn(!isSoundOn)} />
+      <HamburgerMenu />
       
       {/* Header Section */}
       <div style={styles.headerSection}>

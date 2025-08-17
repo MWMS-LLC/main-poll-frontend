@@ -19,12 +19,104 @@ export const AudioProvider = ({ children }) => {
   const [volume, setVolume] = useState(1)
   const [playlist, setPlaylist] = useState([])
   const [currentSongIndex, setCurrentSongIndex] = useState(0)
+  const [isThemeSongOn, setIsThemeSongOn] = useState(true) // Start ON by default
+  const [themeSong, setThemeSong] = useState(null)
 
   // Define playlist functions first
   const setPlaylistSongs = (songs) => {
     setPlaylist(songs)
     setCurrentSongIndex(0)
   }
+
+  // Theme song functions
+  const toggleThemeSong = () => {
+    setIsThemeSongOn(prev => {
+      const newState = !prev
+      if (newState) {
+        // Turning ON - play theme song
+        if (themeSong) {
+          playThemeSong()
+        } else {
+          // Set a default theme song if none exists
+          const defaultThemeSong = {
+            id: "THM_1",
+            title: "Theme Song (Male Inspiring Rap)",
+            fileUrl: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(Male+Inspiring+Rap).mp3"
+          }
+          setThemeSong(defaultThemeSong)
+          // Use setTimeout to ensure state is updated before playing
+          setTimeout(() => playThemeSong(), 100)
+        }
+      } else {
+        // Turning OFF - stop theme song
+        stopThemeSong()
+      }
+      return newState
+    })
+  }
+
+  const playThemeSong = () => {
+    console.log('🎵 Attempting to play theme song...')
+    console.log('isThemeSongOn:', isThemeSongOn)
+    console.log('themeSong:', themeSong)
+    console.log('audioRef.current:', audioRef.current)
+    
+    if (isThemeSongOn && themeSong) {
+      console.log('✅ Conditions met, playing theme song:', themeSong.title)
+      // Stop current music if playing
+      if (audioRef.current) {
+        audioRef.current.pause()
+        setIsPlaying(false)
+      }
+      
+      // Play theme song
+      if (audioRef.current) {
+        audioRef.current.src = themeSong.fileUrl
+        audioRef.current.load()
+        audioRef.current.play().then(() => {
+          console.log('🎵 Theme song started playing successfully!')
+          setIsPlaying(true)
+          setCurrentSong(themeSong)
+          setCurrentTime(0)
+        }).catch(error => {
+          console.error('❌ Error playing theme song:', error)
+          setIsPlaying(false)
+        })
+      }
+    } else {
+      console.log('❌ Cannot play theme song:')
+      console.log('- isThemeSongOn:', isThemeSongOn)
+      console.log('- themeSong exists:', !!themeSong)
+    }
+  }
+
+  const stopThemeSong = () => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      setIsPlaying(false)
+      setCurrentTime(0)
+    }
+  }
+
+  // Auto-play theme song when category is clicked (if enabled)
+  const autoPlayThemeSong = useCallback(() => {
+    if (isThemeSongOn) {
+      console.log('🎵 Auto-playing theme song for category click')
+      if (themeSong) {
+        playThemeSong()
+      } else {
+        // Set default theme song and play it
+        const defaultThemeSong = {
+          id: "THM_1",
+          title: "Theme Song (Male Inspiring Rap)",
+          fileUrl: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(Male+Inspiring+Rap).mp3"
+        }
+        setThemeSong(defaultThemeSong)
+        // Use setTimeout to ensure state is updated before playing
+        setTimeout(() => playThemeSong(), 100)
+      }
+    }
+  }, [isThemeSongOn, themeSong])
 
 
 
@@ -82,6 +174,14 @@ export const AudioProvider = ({ children }) => {
       })
     }
   }
+
+  // Auto-play theme song when it's enabled and a theme song is set
+  useEffect(() => {
+    if (isThemeSongOn && themeSong && !isPlaying) {
+      console.log('🎵 Auto-playing theme song:', themeSong.title)
+      playThemeSong()
+    }
+  }, [isThemeSongOn, themeSong, isPlaying])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -236,13 +336,20 @@ export const AudioProvider = ({ children }) => {
     volume,
     playlist,
     currentSongIndex,
+    isThemeSongOn,
+    themeSong,
     playSong,
     togglePlayPause,
     setVolumeLevel,
     seekTo,
     setPlaylistSongs,
     playNextSong,
-    playPreviousSong
+    playPreviousSong,
+    toggleThemeSong,
+    playThemeSong,
+    stopThemeSong,
+    setThemeSong,
+    autoPlayThemeSong
   }
 
   return (

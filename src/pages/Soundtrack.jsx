@@ -3,12 +3,14 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAudio } from '../contexts/AudioContext.jsx'
 import HamburgerMenu from '../components/HamburgerMenu.jsx'
 import Footer from '../components/Footer.jsx'
-import soundtrackService from '../services/soundtrackService.js'
+import SoundtrackService from '../services/soundtrackService.js'
+
+const soundtrackService = new SoundtrackService()
 
 const Soundtrack = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const [isSoundOn, setIsSoundOn] = useState(false)
+
   const [selectedPlaylist, setSelectedPlaylist] = useState('All Songs')
   const [showLyrics, setShowLyrics] = useState(null)
   const [favorites, setFavorites] = useState(new Set(['LRDD_01']))
@@ -118,7 +120,7 @@ const Soundtrack = () => {
 
       
       {/* Hamburger Menu */}
-      <HamburgerMenu isSoundOn={isSoundOn} onToggleSound={() => setIsSoundOn(!isSoundOn)} />
+      <HamburgerMenu />
       
       {/* Header Section */}
       <div style={styles.headerSection}>
@@ -374,10 +376,11 @@ const styles = {
     justifyContent: 'space-between',
     padding: '25px 30px',
     background: 'rgba(20, 20, 30, 0.95)',
-    borderRadius: '25px',
+    borderRadius: '25px 25px 0 0',
     border: '2px solid rgba(78, 205, 196, 0.4)',
+    borderBottom: 'none',
     marginTop: '30px',
-    marginBottom: '30px',
+    marginBottom: '0px',
     boxShadow: '0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(78, 205, 196, 0.2)',
     backdropFilter: 'blur(15px)',
     position: 'fixed',

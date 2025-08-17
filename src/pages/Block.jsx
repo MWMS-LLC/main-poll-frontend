@@ -11,7 +11,7 @@ const Block = () => {
   const [questions, setQuestions] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [isSoundOn, setIsSoundOn] = useState(false)
+
   const [answeredQuestions, setAnsweredQuestions] = useState(0)
   const [showMusicSuggestion, setShowMusicSuggestion] = useState(false)
   const [musicSuggestion, setMusicSuggestion] = useState(null)
@@ -94,7 +94,7 @@ const Block = () => {
   return (
     <div style={styles.container}>
       {/* Hamburger Menu */}
-      <HamburgerMenu isSoundOn={isSoundOn} onToggleSound={() => setIsSoundOn(!isSoundOn)} />
+      <HamburgerMenu />
       
 
 

@@ -1,18 +1,24 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import HamburgerMenu from '../components/HamburgerMenu'
 import Footer from '../components/Footer.jsx'
 import API_BASE from '../config.js'
+import { useAudio } from '../contexts/AudioContext.jsx'
+
 
 const Category = () => {
   const [blocks, setBlocks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [isSoundOn, setIsSoundOn] = useState(false)
   const [expandedBlock, setExpandedBlock] = useState(null)
   const { categoryId } = useParams()
   const navigate = useNavigate()
+  
+  // Use global audio context for theme song auto-play
+  const { autoPlayThemeSong } = useAudio()
+  
+
 
   useEffect(() => {
     // Check if user has a valid UUID
@@ -25,9 +31,16 @@ const Category = () => {
     
     console.log('User UUID found:', userUuid)
     fetchBlocks()
-  }, [categoryId, navigate])
+    
+    // Auto-play theme song when category is clicked
+    autoPlayThemeSong()
+    
 
-  const fetchBlocks = async () => {
+  }, [categoryId]) // Only depend on categoryId
+
+
+
+  const fetchBlocks = useCallback(async () => {
     try {
       setLoading(true)
       const response = await axios.get(`${API_BASE}/api/categories/${categoryId}/blocks`)
@@ -50,7 +63,7 @@ const Category = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [categoryId])
 
   const handleBlockClick = (block) => {
     // Always navigate to block page
@@ -89,7 +102,7 @@ const Category = () => {
   return (
     <div style={styles.container}>
       {/* Hamburger Menu */}
-      <HamburgerMenu isSoundOn={isSoundOn} onToggleSound={() => setIsSoundOn(!isSoundOn)} />
+      <HamburgerMenu />
       
       {/* Header Section */}
       <div style={styles.headerSection}>
