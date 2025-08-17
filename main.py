@@ -10,9 +10,18 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure logging - force it to be very verbose
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    force=True
+)
 logger = logging.getLogger(__name__)
+
+# Force print statements to flush immediately
+import sys
+sys.stdout.flush()
+sys.stderr.flush()
 
 # Initialize FastAPI app
 app = FastAPI(title="Teen Poll API", version="1.0.0")
@@ -151,7 +160,10 @@ async def root():
 @app.get("/test")
 async def test():
     """Test endpoint to verify code is running"""
+    print("🔍 PRINT: Test endpoint called!")
     logger.info("🔍 Test endpoint called - debug logging is working!")
+    logger.error("🔍 ERROR: Test endpoint called - error logging test!")
+    logger.debug("🔍 DEBUG: Test endpoint called - debug logging test!")
     return {"message": "Test endpoint working", "timestamp": str(datetime.now())}
 
 @app.get("/health")
