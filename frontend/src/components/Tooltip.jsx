@@ -87,7 +87,7 @@ const Tooltip = ({ content, children, position = 'top' }) => {
             borderRadius: '12px',
             fontSize: '14px',
             lineHeight: '1.4',
-            maxWidth: '280px',
+            maxWidth: '350px',
             whiteSpace: 'pre-wrap',
             textAlign: 'center',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
