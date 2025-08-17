@@ -174,12 +174,23 @@ async def health():
 @app.get("/api/categories")
 async def get_categories():
     """Get all categories"""
+    print("🔍 PRINT: Categories endpoint called!")
+    logger.info("🔍 LOG: Categories endpoint called!")
+    
     try:
+        print("🔍 PRINT: About to execute database query")
+        logger.info("🔍 LOG: About to execute database query")
+        
         query = "SELECT * FROM categories ORDER BY id"
         results = execute_query(query)
+        
+        print(f"🔍 PRINT: Query successful, got {len(results)} results")
+        logger.info(f"🔍 LOG: Query successful, got {len(results)} results")
+        
         return results
     except Exception as e:
-        logger.error(f"Error fetching categories: {e}")
+        print(f"🔍 PRINT: Error in categories endpoint: {e}")
+        logger.error(f"🔍 LOG: Error in categories endpoint: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch categories")
 
 @app.get("/api/categories/{category_id}/blocks")
