@@ -506,8 +506,9 @@ async def get_results(question_code: str):
             # For OTHER responses, we need to check if they came from checkbox questions
             # and apply the same weighting logic
             if 'OTHER' in all_results:
-                # If OTHER already exists from checkbox votes, add the weighted count
-                all_results['OTHER']['count'] += other_count
+                # If OTHER already exists from checkbox votes, don't double-count
+                # The checkbox_responses already includes the properly weighted OTHER votes
+                pass
             else:
                 # If OTHER only exists from "other" responses, treat as single choice (full vote)
                 all_results['OTHER'] = {'option_select': 'OTHER', 'count': other_count}
