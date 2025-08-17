@@ -5,6 +5,7 @@ import logging
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 import os
+from urllib.parse import urlparse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -35,20 +36,22 @@ def get_db_connection():
         # Format: postgresql://username:password@host:port/database
         try:
             logger.info(f"Connecting to production database...")
+            logger.info(f"Raw DATABASE_URL: {database_url}")
             
-            # Remove postgresql:// prefix
-            url_without_prefix = database_url.replace("postgresql://", "")
+            # Use urllib.parse for more robust URL parsing
+            parsed = urlparse(database_url)
             
-            # Split user:pass@host:port/database
-            user_pass_part, host_port_db = url_without_prefix.split("@", 1)
-            user, password = user_pass_part.split(":", 1)
-            host_port, database = host_port_db.split("/", 1)
-            host, port = host_port.split(":", 1)
-            port = int(port)
+            # Extract components
+            user = parsed.username or "postgres"
+            password = parsed.password or ""
+            host = parsed.hostname or "localhost"
+            port = parsed.port or 5432
+            database = parsed.path.lstrip("/") or "postgres"
             
             logger.info(f"Production connection: host={host}, port={port}, database={database}, user={user}")
         except Exception as e:
             logger.error(f"Failed to parse DATABASE_URL: {e}")
+            logger.error(f"URL parsing failed for: {database_url}")
             return None
         
         conn = pg8000.connect(
