@@ -92,7 +92,7 @@ const ResultsBarChart = ({ results, questionText, options = [] }) => {
           <div key={index} style={styles.resultItem}>
             <div style={styles.optionHeader}>
               <span style={styles.optionLabel}>
-                {item.option}. {getOptionText(item.option)}
+                {getOptionText(item.option)}
               </span>
               <span style={styles.percentage}>
                 {item.percentage}%
