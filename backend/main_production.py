@@ -17,7 +17,12 @@ app = FastAPI(title="Teen Poll API", version="1.0.0")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, you might want to restrict this
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173", 
+        "https://teen.myworldmysay.com",
+        "https://myworldmysay.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
