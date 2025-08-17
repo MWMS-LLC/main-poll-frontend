@@ -6,12 +6,42 @@ class SoundtrackService {
     this.loaded = false
   }
 
-  // Load soundtrack data from the JSON file
+  // Load soundtrack data from static data (no external file loading)
   async loadSoundtracks() {
     try {
-      // Load all 42 songs from the JSON file
-      const response = await fetch('/src/data/soundtrack.json')
-      const data = await response.json()
+      // Use static soundtrack data instead of loading from file
+      const data = [
+        {
+          song_id: 1,
+          song_title: "My World My Say Theme",
+          mood_tag: "Believe",
+          playlist_tag: "Believe, Inspiring",
+          lyrics_snippet: "You have the power to change your world...",
+          featured: "TRUE",
+          featured_order: 1,
+          file_url: "/My World My Say Theme.mp3"
+        },
+        {
+          song_id: 2,
+          song_title: "My Voice",
+          mood_tag: "Soft",
+          playlist_tag: "Soft, Lowkey",
+          lyrics_snippet: "Finding my voice in the silence...",
+          featured: "TRUE",
+          featured_order: 2,
+          file_url: "/my-voice.mp3"
+        },
+        {
+          song_id: 3,
+          song_title: "Sparks Still Rise",
+          mood_tag: "Inspiring",
+          playlist_tag: "Inspiring, Believe",
+          lyrics_snippet: "Even in darkness, sparks still rise...",
+          featured: "TRUE",
+          featured_order: 3,
+          file_url: "/sparks-still-rise.mp3"
+        }
+      ]
       
       // Transform the data to match our component's format
       this.soundtracks = data.map(song => ({
