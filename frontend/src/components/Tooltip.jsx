@@ -3,8 +3,17 @@ import React, { useState } from 'react'
 const Tooltip = ({ content, children, position = 'top' }) => {
   const [isVisible, setIsVisible] = useState(false)
 
-  const handleMouseEnter = () => setIsVisible(true)
-  const handleMouseLeave = () => setIsVisible(false)
+  // Debug logging
+  console.log('Tooltip render:', { content, position, isVisible })
+
+  const handleMouseEnter = () => {
+    console.log('Mouse enter, content:', content)
+    setIsVisible(true)
+  }
+  const handleMouseLeave = () => {
+    console.log('Mouse leave')
+    setIsVisible(false)
+  }
   const handleTouchStart = () => setIsVisible(true)
   const handleTouchEnd = () => {
     // Delay hiding on mobile to allow reading
@@ -59,14 +68,20 @@ const Tooltip = ({ content, children, position = 'top' }) => {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {children}
+      <div 
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        style={{ display: 'inline-block' }}
+      >
+        {children}
+      </div>
       
       {isVisible && content && (
         <div
           style={{
             position: 'absolute',
-            zIndex: 1000,
-            backgroundColor: 'rgba(26, 31, 59, 0.95)',
+            zIndex: 9999,
+            backgroundColor: 'rgba(45, 125, 122, 0.95)',
             color: 'white',
             padding: '12px 16px',
             borderRadius: '12px',
@@ -75,9 +90,9 @@ const Tooltip = ({ content, children, position = 'top' }) => {
             maxWidth: '280px',
             whiteSpace: 'pre-wrap',
             textAlign: 'center',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
             backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
+            border: '2px solid rgba(255, 255, 255, 0.3)',
             ...getPositionStyles()
           }}
         >

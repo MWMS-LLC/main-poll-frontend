@@ -184,20 +184,19 @@ const Landing = () => {
 
   // Beautiful, subtle category gradients - more neutral and appealing to everyone
   const categoryGradients = {
-    1: { gradient: "linear-gradient(135deg, #4A5568 0%, #2D3748 100%)", emoji: "" }, // Love
-    2: { gradient: "linear-gradient(135deg, #2C7A7B 0%, #234E52 100%)", emoji: "" }, // Friends
-    3: { gradient: "linear-gradient(135deg, #553C9A 0%, #44318E 100%)", emoji: "" }, // Social_Media
-    4: { gradient: "linear-gradient(135deg, #C53030 0%, #9B2C2C 100%)", emoji: "" }, // Pinky
-    5: { gradient: "linear-gradient(135deg, #D69E2E 0%, #B7791F 100%)", emoji: "" }, // Lowkey
+    1: { gradient: "linear-gradient(135deg, #DD6B20 0%, #C05621 100%)", emoji: "" }, // Love
+    2: { gradient: "linear-gradient(135deg, #C53030 0%, #9B2C2C 100%)", emoji: "" }, // Friends
+    3: { gradient: "linear-gradient(135deg, #319795 0%, #2C7A7B 100%)", emoji: "" }, // Social_Media
+    4: { gradient: "linear-gradient(135deg, #805AD5 0%, #6B46C1 100%)", emoji: "" }, // Pinky
+    5: { gradient: "linear-gradient(135deg, #3182CE 0%, #2C5282 100%)", emoji: "" }, // Lowkey
     6: { gradient: "linear-gradient(135deg, #38A169 0%, #2F855A 100%)", emoji: "" }, // Personal
-    7: { gradient: "linear-gradient(135deg, #3182CE 0%, #2C5282 100%)", emoji: "" }, // Healing
+    7: { gradient: "linear-gradient(135deg, #D69E2E 0%, #B7791F 100%)", emoji: "" }, // Healing
     8: { gradient: "linear-gradient(135deg, #805AD5 0%, #6B46C1 100%)", emoji: "" }, // Defense
     9: { gradient: "linear-gradient(135deg, #E53E3E 0%, #C53030 100%)", emoji: "" }, // Family
-    10: { gradient: "linear-gradient(135deg, #DD6B20 0%, #C05621 100%)", emoji: "" }, // Dream Era
+    10: { gradient: "linear-gradient(135deg, #5A67D8 0%, #4C51BF 100%)", emoji: "" }, // Dream Era
     11: { gradient: "linear-gradient(135deg, #319795 0%, #2C7A7B 100%)", emoji: "" }, // School
-    12: { gradient: "linear-gradient(135deg, #5A67D8 0%, #4C51BF 100%)", emoji: "" }, // Chaos
+    12: { gradient: "linear-gradient(135deg, #C53030 0%, #9B2C2C 100%)", emoji: "" }, // Chaos
   }
-
   const getCategoryStyle = (categoryId) => {
     const style = categoryGradients[categoryId] || { 
       gradient: "linear-gradient(135deg, #f0f0f0, #cccccc)", 
@@ -476,6 +475,12 @@ const Landing = () => {
         <div style={styles.bubblesGrid}>
           {categories.map((category, index) => {
             const categoryStyle = getCategoryStyle(category.id)
+            // Debug logging
+            console.log('Category data:', { 
+              id: category.id, 
+              name: category.category_name, 
+              text: category.category_text 
+            })
             return (
               <Tooltip 
                 key={category.id}

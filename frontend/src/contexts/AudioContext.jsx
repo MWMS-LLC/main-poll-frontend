@@ -33,19 +33,21 @@ export const AudioProvider = ({ children }) => {
     setIsThemeSongOn(prev => {
       const newState = !prev
       if (newState) {
-        // Turning ON - play theme song
-        if (themeSong) {
-          playThemeSong()
-        } else {
-          // Set a default theme song if none exists
-          const defaultThemeSong = {
-            id: "THM_1",
-            title: "Theme Song (Male Inspiring Rap)",
-            fileUrl: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(Male+Inspiring+Rap).mp3"
+        // Turning ON - play theme song (only if no soundtrack is playing)
+        if (!currentSong) {
+          if (themeSong) {
+            playThemeSong()
+          } else {
+            // Set a default theme song if none exists
+            const defaultThemeSong = {
+              id: "THM_1",
+              title: "Theme Song (Male Inspiring Rap)",
+              fileUrl: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(Male+Inspiring+Rap).mp3"
+            }
+            setThemeSong(defaultThemeSong)
+            // Use setTimeout to ensure state is updated before playing
+            setTimeout(() => playThemeSong(), 100)
           }
-          setThemeSong(defaultThemeSong)
-          // Use setTimeout to ensure state is updated before playing
-          setTimeout(() => playThemeSong(), 100)
         }
       } else {
         // Turning OFF - stop theme song
@@ -96,6 +98,8 @@ export const AudioProvider = ({ children }) => {
       setIsPlaying(false)
       setCurrentTime(0)
     }
+    // Clear current song when stopping theme song
+    setCurrentSong(null)
   }
 
   // Auto-play theme song when category is clicked (if enabled)
@@ -176,12 +180,13 @@ export const AudioProvider = ({ children }) => {
   }
 
   // Auto-play theme song when it's enabled and a theme song is set
+  // Only auto-play when no soundtrack is currently playing
   useEffect(() => {
-    if (isThemeSongOn && themeSong && !isPlaying) {
+    if (isThemeSongOn && themeSong && !isPlaying && !currentSong) {
       console.log('🎵 Auto-playing theme song:', themeSong.title)
       playThemeSong()
     }
-  }, [isThemeSongOn, themeSong, isPlaying])
+  }, [isThemeSongOn, themeSong, isPlaying, currentSong])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -226,11 +231,12 @@ export const AudioProvider = ({ children }) => {
     
     console.log('🎵 playSong called with:', song.title, 'Playlist length:', songList.length)
     
-    // Stop any currently playing audio first
+    // Stop any currently playing audio first (including theme song)
     audioRef.current.pause()
     audioRef.current.currentTime = 0
     audioRef.current.src = ''
     
+    // Clear theme song state when playing a soundtrack
     setCurrentSong(song)
     setIsPlaying(false)
     
