@@ -54,14 +54,15 @@ const Question = ({ question, onAnswered }) => {
     },
     submitButton: {
       padding: '12px 24px',
-      background: '#4A5568',
+      background: '#2D7D7A',
       color: 'white',
       border: 'none',
       borderRadius: '4px',
       cursor: 'pointer',
       fontSize: '16px',
       marginTop: '15px',
-      transition: 'background-color 0.3s ease'
+      transition: 'background-color 0.3s ease',
+      fontWeight: '500'
     },
     resultsContainer: {
       marginTop: '20px'

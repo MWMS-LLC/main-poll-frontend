@@ -12,6 +12,13 @@ const OptionsList = ({
   setOtherText,
   showOtherInput
 }) => {
+  // Helper function to clean option text (remove duplicate A., B., C. prefixes)
+  const cleanOptionText = (text) => {
+    if (!text) return text
+    // Remove prefix like "A. ", "B. ", "C. " etc.
+    return text.replace(/^[A-Z]\.\s*/, '')
+  }
+
   const handleOptionClick = (optionSelect) => {
     if (isCheckbox) {
       // For checkboxes, toggle the selection
@@ -86,7 +93,7 @@ const OptionsList = ({
                     }}
                     onClick={() => onOptionChange(option.option_select, !selectedOptions.includes(option.option_select))}
                   >
-                    {option.option_text}
+                    {cleanOptionText(option.option_text)}
                   </label>
                 </div>
               ) : (
@@ -111,7 +118,7 @@ const OptionsList = ({
                   onClick={handleOtherClick}
                   className="option-button-hover"
                 >
-                  {option.option_text}
+                  {cleanOptionText(option.option_text)}
                 </button>
               )}
               
@@ -195,7 +202,7 @@ const OptionsList = ({
                     }}
                   onClick={() => onOptionChange(option.option_select, !selectedOptions.includes(option.option_select))}
                 >
-                  {option.option_text}
+                  {cleanOptionText(option.option_text)}
                 </label>
               </div>
             ) : (
@@ -217,9 +224,9 @@ const OptionsList = ({
                 }}
                 onClick={() => handleOptionClick(option.option_select)}
                 className="option-button-hover"
-              >
-                {option.option_text}
-              </button>
+                              >
+                  {cleanOptionText(option.option_text)}
+                </button>
             )}
           </div>
         )
