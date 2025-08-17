@@ -65,7 +65,8 @@ def get_db_connection():
             port=port,
             database=database,
             user=user,
-            password=password
+            password=password,
+            ssl_context=True
         )
         logger.info("Database connection successful!")
         return conn
