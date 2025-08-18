@@ -27,7 +27,7 @@ const Landing = () => {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedAge, setSelectedAge] = useState('')
 
-  const [showSharing, setShowSharing] = useState(true)
+  const [showSharing, setShowSharing] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const [socialHandles, setSocialHandles] = useState({})
 
