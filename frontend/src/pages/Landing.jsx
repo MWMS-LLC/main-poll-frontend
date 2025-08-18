@@ -860,7 +860,7 @@ const styles = {
     borderRadius: '50px',
     fontSize: '18px',
     fontWeight: '600',
-    color: 'black',
+    color: '#F5E6B3',
     border: 'none',
     cursor: 'pointer',
     width: '240px',
