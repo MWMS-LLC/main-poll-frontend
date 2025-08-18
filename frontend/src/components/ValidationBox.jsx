@@ -84,26 +84,16 @@ const ValidationBox = ({ message, companionAdvice, showCompanion, onToggleCompan
               <div style={{
                 marginTop: '20px',
                 padding: '15px',
-                backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                border: '1px solid rgba(255, 193, 7, 0.3)',
-                borderRadius: '8px',
-                borderLeft: '3px solid #FFC107'
+                textAlign: 'center'
               }}>
                 <div style={{
-                  color: '#FFC107',
-                  fontWeight: '600',
-                  fontSize: '14px',
-                  marginBottom: '8px'
-                }}>
-                  ⚠️ Important Note:
-                </div>
-                <div style={{
-                  color: 'rgba(255, 255, 255, 0.8)',
+                  color: 'rgba(255, 255, 255, 0.6)',
                   fontSize: '13px',
-                  lineHeight: '1.5',
-                  marginBottom: '12px'
+                  lineHeight: '1.4',
+                  marginBottom: '12px',
+                  fontStyle: 'italic'
                 }}>
-                  This advice is for reflection and support—not a substitute for professional help. If you need someone to talk to, we have resources available.
+                  Remember: this advice is meant to support you. If you need additional help, we're here for you.
                 </div>
                 <a 
                   href="/help" 
