@@ -87,12 +87,16 @@ const Tooltip = ({ content, children, position = 'top' }) => {
             borderRadius: '12px',
             fontSize: '14px',
             lineHeight: '1.4',
-            maxWidth: '350px',
+            width: '240px',
             whiteSpace: 'pre-wrap',
             textAlign: 'center',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
             backdropFilter: 'blur(12px)',
             border: '2px solid rgba(255, 255, 255, 0.3)',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            MozUserSelect: 'none',
+            msUserSelect: 'none',
             ...getPositionStyles()
           }}
         >
