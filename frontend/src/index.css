@@ -71,12 +71,19 @@ code {
 
 /* Interactive bubble hover effects */
 .bubble-hover:hover {
-  transform: translateY(-5px) scale(1.05) !important;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4) !important;
+  transform: translateY(-3px) scale(1.03) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.2s ease !important;
 }
 
 .bubble-hover:active {
-  transform: translateY(-2px) scale(1.02) !important;
+  transform: translateY(-1px) scale(0.98) !important;
+  transition: all 0.1s ease !important;
+}
+
+/* Add click delay to prevent accidental clicks during hover */
+.bubble-hover {
+  transition: all 0.2s ease !important;
 }
 
 /* Block hover effects */

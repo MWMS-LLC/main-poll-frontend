@@ -27,7 +27,7 @@ const Landing = () => {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedAge, setSelectedAge] = useState('')
 
-  const [showSharing, setShowSharing] = useState(false)
+  const [showSharing, setShowSharing] = useState(true)
   const [copySuccess, setCopySuccess] = useState(false)
   const [socialHandles, setSocialHandles] = useState({})
 
@@ -57,19 +57,22 @@ const Landing = () => {
   }
 
   const handleCategoryClick = (category) => {
-    // Check if user already exists in localStorage
-    const existingUserUuid = localStorage.getItem('user_uuid')
-    const existingYearOfBirth = localStorage.getItem('year_of_birth')
-    
-    if (existingUserUuid && existingYearOfBirth) {
-      // User exists - navigate directly to category
-      navigate(`/category/${category.id}`)
-    } else {
-      // New user - show age dropdown
-      setSelectedCategory(category)
-      setShowAgeDropdown(true)
-      setSelectedAge('')
-    }
+    // Add small delay to prevent accidental clicks during hover
+    setTimeout(() => {
+      // Check if user already exists in localStorage
+      const existingUserUuid = localStorage.getItem('user_uuid')
+      const existingYearOfBirth = localStorage.getItem('year_of_birth')
+      
+      if (existingUserUuid && existingYearOfBirth) {
+        // User exists - navigate directly to category
+        navigate(`/category/${category.id}`)
+      } else {
+        // New user - show age dropdown
+        setSelectedCategory(category)
+        setShowAgeDropdown(true)
+        setSelectedAge('')
+      }
+    }, 150) // 150ms delay
   }
 
   const handleAgeSubmit = async () => {
@@ -282,37 +285,37 @@ const Landing = () => {
       </div>
 
       {/* Social Media Sharing Section */}
-              <div style={styles.sharingSection}>
-          <div style={styles.sharingHeader}>
-            <div style={styles.sharingTitle}>
-              <span style={styles.speechBubble}>💬</span>
-              Drop it in your chat
-            </div>
-            <button 
-              style={{
-                ...styles.hideLinkButton,
-                backgroundColor: showSharing ? '#D97706' : '#2D7D7A'
-              }} 
-              onClick={toggleSharing}
-            >
-              {showSharing ? 'Hide Link' : 'Show Link'}
-            </button>
+      <div style={styles.sharingSection}>
+        <div style={styles.sharingHeader}>
+          <div style={styles.sharingTitle}>
+            <span style={styles.speechBubble}>💬</span>
+            Drop it in your chat
           </div>
-          {showSharing && (
-            <>
-              <div style={styles.linkContainer}>
-                <input 
-                  type="text" 
-                  value="https://myworldmysay.com?ref=1ca99aea-8ae1-4c96-aeaa-a" 
-                  readOnly 
-                  style={styles.linkInput}
-                />
-                <button style={styles.copyButton} onClick={handleCopyLink}>
-                  {copySuccess ? 'Copied!' : 'Copy link'}
-                </button>
-              </div>
-              <div style={styles.socialLabel}>Share to your accounts:</div>
-              <div style={styles.socialButtons}>
+          <button 
+            style={{
+              ...styles.hideLinkButton,
+              backgroundColor: showSharing ? '#D97706' : '#2D7D7A'
+            }} 
+            onClick={toggleSharing}
+          >
+            {showSharing ? 'Hide Link' : 'Show Link'}
+          </button>
+        </div>
+        {showSharing && (
+          <>
+            <div style={styles.linkContainer}>
+              <input 
+                type="text" 
+                value="https://myworldmysay.com?ref=1ca99aea-8ae1-4c96-aeaa-a" 
+                readOnly 
+                style={styles.linkInput}
+              />
+              <button style={styles.copyButton} onClick={handleCopyLink}>
+                {copySuccess ? 'Copied!' : 'Copy link'}
+              </button>
+            </div>
+            <div style={styles.followUsText}>Follow Us:</div>
+            <div style={styles.socialButtons}>
           <button 
             style={{
               ...styles.socialButton,
@@ -722,9 +725,9 @@ const styles = {
   },
   
   sharingSection: {
-    marginTop: '40px',
-    marginBottom: '40px',
-    padding: '20px',
+    marginTop: '5px',
+    marginBottom: '20px',
+    padding: '8px',
     background: 'linear-gradient(135deg, #1A1F3B 0%, #2A2F4B 100%)',
     borderRadius: '20px',
     boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
@@ -737,8 +740,8 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '20px',
-    paddingBottom: '15px',
+    marginBottom: '10px',
+    paddingBottom: '8px',
     borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
   },
   
@@ -773,8 +776,8 @@ const styles = {
     alignItems: 'center',
     background: 'rgba(255, 255, 255, 0.1)',
     borderRadius: '10px',
-    padding: '10px 15px',
-    marginBottom: '20px',
+    padding: '6px 10px',
+    marginBottom: '8px',
     border: '1px solid rgba(255, 255, 255, 0.2)'
   },
   
@@ -807,10 +810,19 @@ const styles = {
     fontWeight: '500'
   },
   
+  followUsText: {
+    fontSize: '12px',
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginBottom: '6px',
+    fontWeight: '500',
+    textAlign: 'center'
+  },
+  
   socialButtons: {
     display: 'flex',
-    gap: '15px',
-    justifyContent: 'center'
+    gap: '8px',
+    justifyContent: 'center',
+    marginBottom: '0'
   },
   
   socialButton: {
@@ -854,12 +866,20 @@ const styles = {
     width: '240px',
     textAlign: 'center',
     boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
-    transition: 'all 0.3s ease',
+    transition: 'all 0.2s ease',
     animation: 'bubbleFloat 2s ease-in-out infinite',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '8px'
+    gap: '8px',
+    ':hover': {
+      transform: 'scale(1.02)',
+      boxShadow: '0 12px 35px rgba(0, 0, 0, 0.4)'
+    },
+    ':active': {
+      transform: 'scale(0.98)',
+      transition: 'all 0.1s ease'
+    }
   },
   
   bubbleEmoji: {
@@ -867,8 +887,12 @@ const styles = {
   },
   
   bubbleText: {
-    fontSize: '16px',
-    lineHeight: '1.3'
+    fontSize: '18px',
+    lineHeight: '1.3',
+    userSelect: 'none',
+    WebkitUserSelect: 'none',
+    MozUserSelect: 'none',
+    msUserSelect: 'none'
   }
 }
 
