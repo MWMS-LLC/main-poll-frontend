@@ -46,12 +46,11 @@ const Category = () => {
       const response = await axios.get(`${API_BASE}/api/categories/${categoryId}/blocks`)
       console.log('Fetched blocks:', response.data)
       
-      // Add playlist property for testing - you can remove this later
-      const blocksWithPlaylists = response.data.map((block, index) => {
-        if (index === 1) { // Second block gets Love playlist
-          return { ...block, playlist: 'Love' }
-        } else if (index === 4) { // Fifth block gets Breakup playlist
-          return { ...block, playlist: 'Breakup' }
+      // Extract playlist from block text if it contains [playlist:name]
+      const blocksWithPlaylists = response.data.map((block) => {
+        const playlistMatch = block.block_text.match(/🎵\[playlist:([^\]]+)\]/)
+        if (playlistMatch) {
+          return { ...block, playlist: playlistMatch[1] }
         }
         return block
       })

@@ -84,6 +84,7 @@ const Question = ({ question, onAnswered }) => {
   const [showCompanion, setShowCompanion] = useState(false)
   const [otherText, setOtherText] = useState('')
   const [showOtherInput, setShowOtherInput] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     console.log('Question useEffect triggered for:', question.question_code)
@@ -104,6 +105,9 @@ const Question = ({ question, onAnswered }) => {
 
   const handleSingleChoice = async (optionSelect) => {
     try {
+      // Show loading state immediately
+      setIsSubmitting(true)
+      
       // Get user_uuid from localStorage
       const userUuid = localStorage.getItem('user_uuid')
       console.log('Attempting to submit vote with user_uuid:', userUuid)
@@ -112,6 +116,7 @@ const Question = ({ question, onAnswered }) => {
       if (!userUuid) {
         console.error('No user_uuid found')
         console.log('localStorage contents:', localStorage)
+        setIsSubmitting(false)
         return
       }
 
@@ -142,6 +147,9 @@ const Question = ({ question, onAnswered }) => {
       }
     } catch (err) {
       console.error('Error submitting vote:', err)
+    } finally {
+      // Always hide loading state
+      setIsSubmitting(false)
     }
   }
 
@@ -149,12 +157,16 @@ const Question = ({ question, onAnswered }) => {
     if (selectedOptions.length === 0) return
 
     try {
+      // Show loading state immediately
+      setIsSubmitting(true)
+      
       // Get user_uuid from localStorage
       const userUuid = localStorage.getItem('user_uuid')
       console.log('Checkbox vote - user_uuid:', userUuid)
       if (!userUuid) {
         console.error('No user_uuid found for checkbox vote')
         console.log('localStorage contents:', localStorage)
+        setIsSubmitting(false)
         return
       }
 
@@ -212,6 +224,9 @@ const Question = ({ question, onAnswered }) => {
       }
     } catch (err) {
       console.error('Error submitting checkbox vote:', err)
+    } finally {
+      // Always hide loading state
+      setIsSubmitting(false)
     }
   }
 
@@ -219,10 +234,14 @@ const Question = ({ question, onAnswered }) => {
     if (!otherText.trim()) return
 
     try {
+      // Show loading state immediately
+      setIsSubmitting(true)
+      
       // Get user_uuid from localStorage
       const userUuid = localStorage.getItem('user_uuid')
       if (!userUuid) {
         console.error('No user_uuid found')
+        setIsSubmitting(false)
         return
       }
 
@@ -253,6 +272,9 @@ const Question = ({ question, onAnswered }) => {
       }
     } catch (err) {
       console.error('Error submitting other response:', err)
+    } finally {
+      // Always hide loading state
+      setIsSubmitting(false)
     }
   }
 
@@ -321,6 +343,7 @@ const Question = ({ question, onAnswered }) => {
               otherText={otherText}
               setOtherText={setOtherText}
               showOtherInput={showOtherInput}
+              isSubmitting={isSubmitting}
             />
           ) : (
             <div style={styles.errorContainer}>
@@ -335,12 +358,15 @@ const Question = ({ question, onAnswered }) => {
       {question.check_box && !showResults && selectedOptions.length > 0 && (
         <button
           onClick={handleCheckboxSubmit}
+          disabled={isSubmitting}
           style={{
             ...styles.submitButton,
-            background: '#2D7D7A'
+            background: isSubmitting ? '#1a5a57' : '#2D7D7A',
+            opacity: isSubmitting ? 0.7 : 1,
+            cursor: isSubmitting ? 'not-allowed' : 'pointer'
           }}
         >
-          Submit
+          {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>
       )}
 

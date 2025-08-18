@@ -10,11 +10,14 @@ const OptionsList = ({
   onOtherSubmit,
   otherText,
   setOtherText,
-  showOtherInput
+  showOtherInput,
+  isSubmitting
 }) => {
 
 
   const handleOptionClick = (optionSelect) => {
+    if (isSubmitting) return // Disable clicks while submitting
+    
     if (isCheckbox) {
       // For checkboxes, toggle the selection
       const isSelected = selectedOptions.includes(optionSelect)
@@ -203,24 +206,26 @@ const OptionsList = ({
             ) : (
               // Single choice question - show as clickable button (no radio)
               <button
+                disabled={isSubmitting}
                 style={{ 
-                  cursor: 'pointer', 
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer', 
                   width: '100%',
                   padding: '18px 24px',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   borderRadius: '16px',
-                  backgroundColor: 'transparent',
-                  color: 'white',
+                  backgroundColor: isSubmitting ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                  color: isSubmitting ? 'rgba(255, 255, 255, 0.6)' : 'white',
                   fontSize: '16px',
                   fontWeight: '500',
                   textAlign: 'left',
                   transition: 'all 0.2s ease',
-                  boxShadow: 'none'
+                  boxShadow: 'none',
+                  opacity: isSubmitting ? 0.7 : 1
                 }}
                 onClick={() => handleOptionClick(option.option_select)}
                 className="option-button-hover"
                               >
-                  {option.option_text}
+                  {isSubmitting ? 'Submitting...' : option.option_text}
                 </button>
             )}
           </div>
