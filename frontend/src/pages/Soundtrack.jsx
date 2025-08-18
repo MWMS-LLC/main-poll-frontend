@@ -102,6 +102,12 @@ const Soundtrack = () => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
+  const formatPlaylistName = (playlist) => {
+    return playlist
+      .replace(/_/g, ' ')  // Replace underscores with spaces
+      .replace(/\b\w/g, l => l.toUpperCase())  // Capitalize first letter of each word
+  }
+
   const handleSeek = (e) => {
     if (duration > 0) {
       const rect = e.currentTarget.getBoundingClientRect()
@@ -128,7 +134,7 @@ const Soundtrack = () => {
           ← Back
         </div>
         <h1 style={styles.pageTitle}>
-          {selectedPlaylist === 'All Songs' ? 'All Songs' : `${selectedPlaylist} Playlist`}
+          {selectedPlaylist === 'All Songs' ? 'All Songs' : `${formatPlaylistName(selectedPlaylist)} Playlist`}
         </h1>
         {searchParams.get('playlist') && (
           <div style={styles.autoSelectMessage}>
@@ -150,7 +156,7 @@ const Soundtrack = () => {
               }}
               onClick={() => handlePlaylistSelect(playlist)}
             >
-              {playlist}
+              {formatPlaylistName(playlist)}
             </button>
           ))}
         </div>
