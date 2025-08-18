@@ -93,12 +93,12 @@ const ValidationBox = ({ message, companionAdvice, showCompanion, onToggleCompan
                   marginBottom: '12px',
                   fontStyle: 'italic'
                 }}>
-                  Remember: this advice is meant to support you. If you need additional help, we're here for you.
+                  This isn't therapy, but someone out there can be.
                 </div>
                 <a 
                   href="/help" 
                   style={{
-                    color: '#4ECDC4',
+                    color: 'rgba(255, 255, 255, 0.6)',
                     textDecoration: 'none',
                     fontSize: '13px',
                     fontWeight: '500',
@@ -109,7 +109,7 @@ const ValidationBox = ({ message, companionAdvice, showCompanion, onToggleCompan
                   onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
                   onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
                 >
-                  📚 Get Help & Resources →
+                  Professional Help
                 </a>
               </div>
             </div>
