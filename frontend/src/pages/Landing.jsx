@@ -208,6 +208,12 @@ const Landing = () => {
     return style
   }
 
+  const formatCategoryName = (categoryName) => {
+    return categoryName
+      .replace(/_/g, ' ')  // Replace underscores with spaces
+      .replace(/\b\w/g, l => l.toUpperCase())  // Capitalize first letter of each word
+  }
+
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
@@ -500,7 +506,7 @@ const Landing = () => {
                   className="bubble-hover"
                 >
                   <div style={styles.bubbleEmoji}>{categoryStyle.emoji}</div>
-                  <div style={styles.bubbleText}>{category.category_name}</div>
+                  <div style={styles.bubbleText}>{formatCategoryName(category.category_name)}</div>
                 </button>
               </Tooltip>
             )

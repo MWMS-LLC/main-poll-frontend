@@ -9,6 +9,8 @@ import TooYoung from './pages/TooYoung.jsx'
 import BeforeYouBegin from './pages/BeforeYouBegin.jsx'
 import FAQ from './pages/FAQ.jsx'
 import Help from './pages/Help.jsx'
+import Privacy from './pages/Privacy.jsx'
+import Contact from './pages/Contact.jsx'
 
 import Soundtrack from './pages/Soundtrack.jsx'
 
@@ -26,6 +28,8 @@ function App() {
             <Route path="/before-you-begin" element={<BeforeYouBegin />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/help" element={<Help />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/contact" element={<Contact />} />
 
             <Route path="/soundtrack" element={<Soundtrack />} />
           </Routes>
