@@ -6,8 +6,8 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 import os
 from urllib.parse import urlparse
-from sqlalchemy import create_engine, text
-from sqlalchemy.pool import QueuePool
+import threading
+import queue
 from contextlib import contextmanager
 
 # Configure logging
@@ -32,67 +32,107 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global database engine with connection pooling
-db_engine = None
-
-def get_db_engine():
-    """Get or create the database engine with connection pooling"""
-    global db_engine
-    if db_engine is None:
-        try:
+# Simple connection pool using pg8000
+class SimpleConnectionPool:
+    def __init__(self, max_connections=10):
+        self.max_connections = max_connections
+        self.pool = queue.Queue(maxsize=max_connections)
+        self.active_connections = 0
+        self.lock = threading.Lock()
+        self.db_params = None
+        
+    def _create_connection(self):
+        """Create a new database connection"""
+        if not self.db_params:
             database_url = os.getenv("DATABASE_URL")
             if not database_url:
-                logger.error("DATABASE_URL environment variable is not set!")
-                return None
+                raise Exception("DATABASE_URL environment variable is not set!")
             
-            # Create engine with connection pooling
-            db_engine = create_engine(
-                database_url,
-                poolclass=QueuePool,
-                pool_size=10,  # Number of connections to maintain
-                max_overflow=20,  # Additional connections when pool is full
-                pool_pre_ping=True,  # Validate connections before use
-                pool_recycle=3600,  # Recycle connections every hour
-                echo=False  # Set to True for SQL debugging
-            )
-            logger.info("Database engine created with connection pooling!")
-            
-        except Exception as e:
-            logger.error(f"Failed to create database engine: {e}")
-            return None
+            # Parse DATABASE_URL
+            parsed = urlparse(database_url)
+            self.db_params = {
+                'host': parsed.hostname or "localhost",
+                'port': parsed.port or 5432,
+                'database': parsed.path.lstrip("/") or "postgres",
+                'user': parsed.username or "postgres",
+                'password': parsed.password or "",
+                'ssl_context': True
+            }
+            logger.info(f"Database params initialized for host: {self.db_params['host']}")
+        
+        return pg8000.connect(**self.db_params)
     
-    return db_engine
+    def get_connection(self):
+        """Get a connection from the pool"""
+        try:
+            # Try to get an existing connection from the pool
+            return self.pool.get_nowait()
+        except queue.Empty:
+            # No connections available, create a new one if under limit
+            with self.lock:
+                if self.active_connections < self.max_connections:
+                    self.active_connections += 1
+                    try:
+                        conn = self._create_connection()
+                        logger.info(f"Created new connection. Active: {self.active_connections}")
+                        return conn
+                    except Exception as e:
+                        self.active_connections -= 1
+                        raise e
+                else:
+                    # Wait for a connection to become available
+                    logger.info("Pool full, waiting for connection...")
+                    return self.pool.get(timeout=30)
+    
+    def return_connection(self, conn):
+        """Return a connection to the pool"""
+        try:
+            # Test if connection is still valid
+            cursor = conn.cursor()
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+            # Connection is good, return to pool
+            self.pool.put_nowait(conn)
+        except:
+            # Connection is bad, close it and decrease counter
+            try:
+                conn.close()
+            except:
+                pass
+            with self.lock:
+                self.active_connections -= 1
+            logger.info(f"Closed bad connection. Active: {self.active_connections}")
+
+# Global connection pool
+connection_pool = SimpleConnectionPool(max_connections=10)
 
 @contextmanager
 def get_db_connection():
     """Get database connection from the pool"""
-    engine = get_db_engine()
-    if not engine:
-        raise Exception("Could not establish database connection")
-    
-    connection = None
+    conn = None
     try:
-        connection = engine.connect()
-        yield connection
+        conn = connection_pool.get_connection()
+        yield conn
     finally:
-        if connection:
-            connection.close()
+        if conn:
+            connection_pool.return_connection(conn)
 
 # Database query execution function with connection pooling
 def execute_query(query: str, params: tuple = None, fetch: bool = True):
     """Execute database query using connection pool"""
     try:
         with get_db_connection() as conn:
+            cursor = conn.cursor()
             if params:
-                result = conn.execute(text(query), params)
+                cursor.execute(query, params)
             else:
-                result = conn.execute(text(query))
+                cursor.execute(query)
             
             if fetch:
                 # Get column names
-                columns = result.keys()
+                columns = [desc[0] for desc in cursor.description]
                 # Fetch all rows and convert to list of dicts
-                rows = result.fetchall()
+                rows = cursor.fetchall()
                 results = []
                 for row in rows:
                     results.append(dict(zip(columns, row)))
