@@ -18,6 +18,23 @@ const Block = () => {
   const { blockCode } = useParams()
   const navigate = useNavigate()
 
+  const loadSoundtracks = async () => {
+    await soundtrackService.loadSoundtracks()
+  }
+
+  const fetchQuestions = async () => {
+    try {
+      setLoading(true)
+      const response = await axios.get(`${API_BASE}/api/blocks/${blockCode}/questions`)
+      setQuestions(response.data)
+    } catch (err) {
+      setError("Failed to fetch questions")
+      console.error("Error fetching questions:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     // Check if user has a valid UUID
     const userUuid = localStorage.getItem('user_uuid')
@@ -32,20 +49,6 @@ const Block = () => {
     loadSoundtracks()
   }, [blockCode, navigate])
 
-  const loadSoundtracks = async () => {
-    await soundtrackService.loadSoundtracks()
-  }
-
-  const fetchQuestions = async () => {
-    try {
-      setLoading(true)
-      const response = await axios.get(`${API_BASE}/api/blocks/${blockCode}/questions`)
-      setQuestions(response.data)
-    } catch (err) {
-      setError('Failed to fetch questions')
-      console.error('Error fetching questions:', err)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -99,7 +102,7 @@ const Block = () => {
       {/* Header Section */}
       <div style={styles.headerSection}>
         <div style={styles.backButton} onClick={() => navigate('/')}>
-          ← Back to Categories
+          ← Back to Blocks
         </div>
         <h1 style={styles.pageTitle}>Questions</h1>
         <div style={styles.pageSubtitle}>
