@@ -11,7 +11,7 @@ uvicorn[standard]==0.22.0
 pg8000==1.29.8
 
 # Database ORM and connection pooling - pure Python
-sqlalchemy==2.0.27
+sqlalchemy==2.0.30
 
 # Environment management
 python-dotenv==1.0.0
