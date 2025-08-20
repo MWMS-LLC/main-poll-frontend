@@ -6,6 +6,9 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 import os
 from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
+from sqlalchemy.pool import QueuePool
+from contextlib import contextmanager
 
 # Load environment variables
 load_dotenv()
@@ -48,69 +51,83 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Database connection function - LOCAL DEVELOPMENT ONLY
-def get_db_connection():
-    """Get database connection to local PostgreSQL"""
-    try:
-        # Local development - use local PostgreSQL
-        host = "localhost"
-        port = 5432
-        database = "teen_poll"
-        user = "1withyin"  # Your local username
-        password = ""  # No password for local
-        
-        logger.info(f"Using local connection: host={host}, port={port}, database={database}, user={user}")
-        
-        conn = pg8000.connect(
-            host=host,
-            port=port,
-            database=database,
-            user=user,
-            password=password
-        )
-        logger.info("Database connection successful!")
-        return conn
-            
-    except Exception as e:
-        logger.error(f"Database connection failed: {e}")
-        return None
+# Global database engine with connection pooling
+db_engine = None
 
-# Database query execution function
-def execute_query(query: str, params: tuple = None, fetch: bool = True):
-    """Execute database query"""
-    conn = None
-    try:
-        conn = get_db_connection()
-        if not conn:
-            raise Exception("Could not establish database connection")
-        
-        cursor = conn.cursor()
-        if params:
-            cursor.execute(query, params)
-        else:
-            cursor.execute(query)
-        
-        if fetch:
-            # Get column names
-            columns = [desc[0] for desc in cursor.description]
-            # Fetch all rows and convert to list of dicts
-            rows = cursor.fetchall()
-            results = []
-            for row in rows:
-                results.append(dict(zip(columns, row)))
-            return results
-        else:
-            conn.commit()
-            return True
+def get_db_engine():
+    """Get or create the database engine with connection pooling"""
+    global db_engine
+    if db_engine is None:
+        try:
+            # Local development - use local PostgreSQL
+            host = "localhost"
+            port = 5432
+            database = "teen_poll"
+            user = "1withyin"  # Your local username
+            password = ""  # No password for local
             
+            # Create connection string for SQLAlchemy
+            connection_string = f"postgresql+pg8000://{user}:{password}@{host}:{port}/{database}"
+            
+            # Create engine with connection pooling
+            db_engine = create_engine(
+                connection_string,
+                poolclass=QueuePool,
+                pool_size=5,  # Smaller pool for local development
+                max_overflow=10,  # Additional connections when pool is full
+                pool_pre_ping=True,  # Validate connections before use
+                pool_recycle=3600,  # Recycle connections every hour
+                echo=False  # Set to True for SQL debugging
+            )
+            logger.info("Local database engine created with connection pooling!")
+            
+        except Exception as e:
+            logger.error(f"Failed to create local database engine: {e}")
+            return None
+    
+    return db_engine
+
+@contextmanager
+def get_db_connection():
+    """Get database connection from the pool"""
+    engine = get_db_engine()
+    if not engine:
+        raise Exception("Could not establish database connection")
+    
+    connection = None
+    try:
+        connection = engine.connect()
+        yield connection
+    finally:
+        if connection:
+            connection.close()
+
+# Database query execution function with connection pooling
+def execute_query(query: str, params: tuple = None, fetch: bool = True):
+    """Execute database query using connection pool"""
+    try:
+        with get_db_connection() as conn:
+            if params:
+                result = conn.execute(text(query), params)
+            else:
+                result = conn.execute(text(query))
+            
+            if fetch:
+                # Get column names
+                columns = result.keys()
+                # Fetch all rows and convert to list of dicts
+                rows = result.fetchall()
+                results = []
+                for row in rows:
+                    results.append(dict(zip(columns, row)))
+                return results
+            else:
+                conn.commit()
+                return True
+                
     except Exception as e:
         logger.error(f"Database operation failed: {e}")
-        if conn:
-            conn.rollback()
         raise HTTPException(status_code=500, detail=f"Database operation failed: {e}")
-    finally:
-        if conn:
-            conn.close()
 
 @app.on_event("startup")
 async def startup_event():

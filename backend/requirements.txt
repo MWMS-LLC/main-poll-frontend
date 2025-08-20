@@ -10,5 +10,8 @@ uvicorn[standard]==0.22.0
 # Database adapter - pure Python, no binary dependencies
 pg8000==1.29.8
 
+# Database ORM and connection pooling - pure Python
+sqlalchemy==2.0.23
+
 # Environment management
 python-dotenv==1.0.0
