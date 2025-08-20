@@ -4,7 +4,7 @@ import axios from 'axios'
 import Question from '../components/Question'
 import HamburgerMenu from '../components/HamburgerMenu'
 import Footer from '../components/Footer.jsx'
-import soundtrackService from '../services/soundtrackService'
+import SoundtrackService from '../services/soundtrackService'
 import API_BASE from '../config.js'
 
 const Block = () => {
@@ -17,6 +17,14 @@ const Block = () => {
   const [musicSuggestion, setMusicSuggestion] = useState(null)
   const { blockCode } = useParams()
   const navigate = useNavigate()
+
+  // Create an instance of SoundtrackService
+  const soundtrackService = new SoundtrackService()
+
+  const handleBackToBlocks = () => {
+    const categoryId = blockCode.split("_")[0]
+    navigate(`/category/${categoryId}`)
+  }
 
   const loadSoundtracks = async () => {
     await soundtrackService.loadSoundtracks()
@@ -49,8 +57,6 @@ const Block = () => {
     loadSoundtracks()
   }, [blockCode, navigate])
 
-    }
-  }
 
   const handleQuestionAnswered = (questionData) => {
     const newCount = answeredQuestions + 1
@@ -101,7 +107,7 @@ const Block = () => {
       
       {/* Header Section */}
       <div style={styles.headerSection}>
-        <div style={styles.backButton} onClick={() => navigate('/')}>
+        <div style={styles.backButton} onClick={handleBackToBlocks}>
           ← Back to Blocks
         </div>
         <h1 style={styles.pageTitle}>Questions</h1>
