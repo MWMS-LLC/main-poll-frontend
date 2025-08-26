@@ -5,7 +5,7 @@ import { useAudio } from '../contexts/AudioContext.jsx'
 import HamburgerMenu from '../components/HamburgerMenu.jsx'
 import Tooltip from '../components/Tooltip'
 import Footer from '../components/Footer.jsx'
-import { API_BASE } from '../config.js'
+import API_BASE from '../config.js'
 
 const Landing = () => {
   const { triggerThemeSong } = useAudio()
@@ -258,7 +258,7 @@ const Landing = () => {
   if (error) {
     return (
       <div style={styles.errorContainer}>
-        <div style={styles.errorText}>Oops! {error}</div>
+        <div style={styles.generalErrorText}>Oops! {error}</div>
       </div>
     )
   }
@@ -647,7 +647,7 @@ const styles = {
     background: 'linear-gradient(135deg, #0A0F2B 0%, #1A1F3B 100%)'
   },
   
-  errorText: {
+  generalErrorText: {
     color: '#FF7675',
     fontSize: '20px',
     textAlign: 'center'
