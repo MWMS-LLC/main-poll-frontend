@@ -1,12 +1,33 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import HamburgerMenu from '../components/HamburgerMenu'
+import { useAudio } from '../contexts/AudioContext.jsx'
+import { useMaintenance } from '../contexts/MaintenanceContext.jsx'
+import HamburgerMenu from '../components/HamburgerMenu.jsx'
 import Tooltip from '../components/Tooltip'
 import Footer from '../components/Footer.jsx'
-import API_BASE from '../config.js'
+import { API_BASE } from '../config.js'
 
 const Landing = () => {
+  const { triggerThemeSong } = useAudio()
+  const { isMaintenanceMode } = useMaintenance()
+  const navigate = useNavigate()
+
+  // Simple maintenance mode - set this to true when you need to run DB operations
+  const MAINTENANCE_MODE = false; // Change this to true when needed
+
+  // Redirect to maintenance page if maintenance mode is active
+  useEffect(() => {
+    if (isMaintenanceMode || MAINTENANCE_MODE) {
+      navigate('/maintenance')
+    }
+  }, [isMaintenanceMode, MAINTENANCE_MODE, navigate])
+
+  // Don't render anything if in maintenance mode
+  if (isMaintenanceMode || MAINTENANCE_MODE) {
+    return null
+  }
+  
   // Fallback UUID generation function for browsers that don't support crypto.randomUUID
   const generateUUID = () => {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -26,12 +47,13 @@ const Landing = () => {
   const [showAgeDropdown, setShowAgeDropdown] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedAge, setSelectedAge] = useState('')
+  const [userCreationError, setUserCreationError] = useState('')
+  const [isCreatingUser, setIsCreatingUser] = useState(false)
+  const [retryCount, setRetryCount] = useState(0)
 
   const [showSharing, setShowSharing] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const [socialHandles, setSocialHandles] = useState({})
-
-  const navigate = useNavigate()
 
   useEffect(() => {
     fetchCategories()
@@ -71,12 +93,16 @@ const Landing = () => {
         setSelectedCategory(category)
         setShowAgeDropdown(true)
         setSelectedAge('')
+        setUserCreationError('') // Clear any previous errors
       }
     }, 150) // 150ms delay
   }
 
-  const handleAgeSubmit = async () => {
+    const handleAgeSubmit = async () => {
     if (!selectedAge) return
+    
+    // Trigger theme song after user interaction
+    triggerThemeSong()
     
     let birthYear
     if (selectedAge === 'before2007') {
@@ -90,10 +116,13 @@ const Landing = () => {
       if (birthYear < 2007 || birthYear > 2012) {
         navigate('/too-old')
         return
-      }
+    }
     }
 
     try {
+      setIsCreatingUser(true)
+      setUserCreationError('')
+      
       // Generate UUID
       const userUuid = generateUUID()
       console.log('Generated user UUID:', userUuid)
@@ -118,14 +147,33 @@ const Landing = () => {
     } catch (err) {
       console.error('Error creating user:', err)
       
-      // Even if API fails, store locally and continue
-      const userUuid = generateUUID()
-      localStorage.setItem('user_uuid', userUuid)
-      localStorage.setItem('year_of_birth', birthYear.toString())
-      console.log('Stored user locally after API error:', userUuid)
+      // Set user-friendly error message
+      let errorMessage = 'Failed to create your account. '
+      if (err.response?.status === 400) {
+        // These shouldn't happen with the current UI, but handle them gracefully
+        if (err.response.data?.detail?.includes('year_of_birth')) {
+          errorMessage = 'There was an issue with your age selection. Please try again.'
+        } else if (err.response.data?.detail?.includes('user_uuid')) {
+          errorMessage = 'There was an issue with your account ID. Please try again.'
+        } else {
+          errorMessage = 'Please check your information and try again.'
+        }
+      } else if (err.response?.status === 500) {
+        errorMessage = 'Server error. Please try again in a moment.'
+      } else if (err.code === 'NETWORK_ERROR') {
+        errorMessage = 'Network error. Please check your internet connection and try again.'
+      } else if (err.message?.includes('timeout')) {
+        errorMessage = 'Request timed out. Please check your connection and try again.'
+      } else {
+        errorMessage = 'Something went wrong. Please try again.'
+      }
       
-      // Navigate to category page
-      navigate(`/category/${selectedCategory.id}`)
+      setUserCreationError(errorMessage)
+      
+      // DO NOT continue to voting - user must be created successfully first
+      // This prevents the 500 errors that happen when voting without a user in the database
+    } finally {
+      setIsCreatingUser(false)
     }
   }
 
@@ -245,10 +293,41 @@ const Landing = () => {
             <div style={styles.modalText}>
               We don't collect your name, email, or any personal info. Everything stays on your device.
             </div>
+            
+            {/* Error Display */}
+            {userCreationError && (
+              <div style={styles.errorMessage}>
+                <div style={styles.errorTitle}>⚠️ Account Creation Failed</div>
+                <div style={styles.errorText}>{userCreationError}</div>
+                <div style={styles.errorActions}>
+                  <button 
+                    style={styles.retryButton}
+                    onClick={() => {
+                      setUserCreationError('')
+                      setSelectedAge('')
+                      setRetryCount(prev => prev + 1)
+                    }}
+                  >
+                    Try Again {retryCount > 0 && `(${retryCount})`}
+                  </button>
+                  <button 
+                    style={styles.helpButton}
+                    onClick={() => {
+                      // Show help information for real problems
+                      setUserCreationError('Common issues:\n• Check your internet connection\n• Try refreshing the page\n• Make sure you selected an age\n• Contact support if the problem persists')
+                    }}
+                  >
+                    Need Help?
+                  </button>
+                </div>
+              </div>
+            )}
+            
             <select
               style={styles.select}
               value={selectedAge}
               onChange={e => setSelectedAge(e.target.value)}
+              disabled={isCreatingUser}
             >
               <option value="">Year of Birth</option>
               <option value="before2007">Before 2007</option>
@@ -260,11 +339,28 @@ const Landing = () => {
               <option value="2012">2012</option>
               <option value="after2012">After 2012</option>
             </select>
+            
+            {/* Processing indicator */}
+            {isCreatingUser && (
+              <div style={styles.processingMessage}>
+                <div style={styles.spinner}></div>
+                Creating your account...
+              </div>
+            )}
+            
             <div style={styles.modalButtons}>
-              <button style={styles.submitButton} onClick={handleAgeSubmit}>
-                Continue
+              <button 
+                style={isCreatingUser ? styles.submitButtonDisabled : styles.submitButton} 
+                onClick={handleAgeSubmit}
+                disabled={!selectedAge || isCreatingUser}
+              >
+                {isCreatingUser ? 'Creating Account...' : 'Continue'}
               </button>
-              <button style={styles.cancelButton} onClick={closeAgeDropdown}>
+              <button 
+                style={styles.cancelButton} 
+                onClick={closeAgeDropdown}
+                disabled={isCreatingUser}
+              >
                 Cancel
               </button>
             </div>
@@ -623,6 +719,17 @@ const styles = {
     backgroundColor: 'white'
   },
   
+  errorMessage: {
+    color: '#FF7675',
+    fontSize: '14px',
+    marginBottom: '15px',
+    padding: '10px',
+    backgroundColor: '#FFE6E6',
+    borderRadius: '8px',
+    border: '1px solid #FFE6E6',
+    textAlign: 'left'
+  },
+  
   modalButtons: {
     display: 'flex',
     gap: '10px',
@@ -636,6 +743,18 @@ const styles = {
     border: 'none',
     borderRadius: '10px',
     cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: '600',
+    transition: 'all 0.2s ease'
+  },
+  
+  submitButtonDisabled: {
+    padding: '12px 24px',
+    backgroundColor: '#95A5A6',
+    color: 'rgba(255, 255, 255, 0.6)',
+    border: 'none',
+    borderRadius: '10px',
+    cursor: 'not-allowed',
     fontSize: '16px',
     fontWeight: '600',
     transition: 'all 0.2s ease'
@@ -901,6 +1020,63 @@ const styles = {
     WebkitUserSelect: 'none',
     MozUserSelect: 'none',
     msUserSelect: 'none'
+  },
+  errorTitle: {
+    fontSize: '18px',
+    fontWeight: 'bold',
+    marginBottom: '10px',
+    color: '#FF7675'
+  },
+  errorText: {
+    fontSize: '14px',
+    color: '#FF7675',
+    marginBottom: '15px',
+    textAlign: 'left',
+    padding: '0 10px',
+    lineHeight: '1.4'
+  },
+  errorActions: {
+    display: 'flex',
+    gap: '10px',
+    justifyContent: 'center'
+  },
+  retryButton: {
+    padding: '8px 15px',
+    backgroundColor: '#4ECDC4',
+    color: 'white',
+    border: 'none',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '600',
+    transition: 'all 0.2s ease'
+  },
+  helpButton: {
+    padding: '8px 15px',
+    backgroundColor: '#95A5A6',
+    color: 'white',
+    border: 'none',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '600',
+    transition: 'all 0.2s ease'
+  },
+  processingMessage: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    marginTop: '15px',
+    color: '#4ECDC4',
+    fontSize: '14px',
+    fontWeight: '500'
+  },
+  spinner: {
+    border: '4px solid rgba(255, 255, 255, 0.3)',
+    borderTop: '4px solid #4ECDC4',
+    borderRadius: '50%',
+    width: '20px',
+    height: '20px'
   }
 }
 

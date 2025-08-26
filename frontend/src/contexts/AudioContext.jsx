@@ -37,17 +37,36 @@ export const AudioProvider = ({ children }) => {
       fileUrl: "https://myworld-soundtrack.s3.us-east-2.amazonaws.com/myworld_soundtrack/Theme+(Male+Inspiring+Rap).mp3"
     }
     setThemeSong(defaultThemeSong)
-    console.log('🎵 Theme song system initialized')
+    
+    // Check if theme song was already played this session
+    const alreadyPlayed = localStorage.getItem('themeSongPlayed') === 'true'
+    setHasAutoPlayed(alreadyPlayed)
+    
+    console.log('🎵 Theme song system initialized', alreadyPlayed ? '(already played this session)' : '(ready to play)')
   }, [])
 
-  // Auto-play theme song once after YOB entry
+  // Clear theme song state when component unmounts (new session)
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem('themeSongPlayed')
+    }
+  }, [])
+
+  // Auto-play theme song once after user interaction
   useEffect(() => {
     if (isThemeSongOn && themeSong && !hasAutoPlayed) {
-      console.log('🎵 Auto-playing theme song (first time)')
-      setTimeout(() => {
-        playThemeSong()
-        setHasAutoPlayed(true)
-      }, 500)
+      console.log('🎵 Theme song ready to play after user interaction')
+    }
+  }, [isThemeSongOn, themeSong, hasAutoPlayed])
+
+  // Function to trigger theme song after user interaction (only once per session)
+  const triggerThemeSong = useCallback(() => {
+    if (isThemeSongOn && themeSong && !hasAutoPlayed) {
+      console.log('🎵 Triggering theme song after user interaction')
+      playThemeSong()
+      setHasAutoPlayed(true)
+      // Store in localStorage so it persists across navigation
+      localStorage.setItem('themeSongPlayed', 'true')
     }
   }, [isThemeSongOn, themeSong, hasAutoPlayed])
 
@@ -77,15 +96,23 @@ export const AudioProvider = ({ children }) => {
       const newState = !prev
       if (newState) {
         console.log('🎵 Theme song turned ON')
-        playThemeSong()
-        setHasAutoPlayed(false)
+        // If turning on and it was already played, allow it to play again
+        if (hasAutoPlayed) {
+          playThemeSong()
+        }
       } else {
         console.log('🎵 Theme song turned OFF')
         stopThemeSong()
-        setHasAutoPlayed(true)
       }
       return newState
     })
+  }
+
+  // Function to reset theme song state (allow it to play again)
+  const resetThemeSong = () => {
+    setHasAutoPlayed(false)
+    localStorage.removeItem('themeSongPlayed')
+    console.log('🎵 Theme song state reset - can play again')
   }
 
   // ===== SOUNDTRACK FUNCTIONS (Never touch theme song) =====
@@ -261,6 +288,8 @@ export const AudioProvider = ({ children }) => {
     toggleThemeSong,
     playThemeSong,
     stopThemeSong,
+    triggerThemeSong,
+    resetThemeSong,
     
     // Soundtrack system
     audioRef: soundtrackAudioRef, // Keep for backward compatibility

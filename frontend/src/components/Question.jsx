@@ -6,6 +6,48 @@ import ResultsBarChart from './ResultsBarChart.jsx'
 import API_BASE from '../config.js'
 
 const Question = ({ question, onAnswered }) => {
+  // ===== VOTING COOLDOWN CONFIGURATION =====
+  // Adjust these values as needed:
+  //const VOTING_COOLDOWN_HOURS = 24  // 24 hours cooldown
+  const VOTING_COOLDOWN_MINUTES = 1  // 1 minute cooldown (commented out)
+  
+  // ===== VOTING COOLDOWN LOGIC =====
+  const getVotingCooldownKey = (questionCode) => `voting_cooldown_${questionCode}`
+  
+  const isVotingOnCooldown = (questionCode) => {
+    const cooldownKey = getVotingCooldownKey(questionCode)
+    const lastVoteTime = localStorage.getItem(cooldownKey)
+    
+    if (!lastVoteTime) return false
+    
+    const now = new Date().getTime()
+    const lastVote = parseInt(lastVoteTime)
+    // const cooldownMs = VOTING_COOLDOWN_HOURS * 60 * 60 * 1000 // Convert hours to milliseconds
+    const cooldownMs = VOTING_COOLDOWN_MINUTES * 60 * 1000 // Convert minutes to milliseconds
+    
+    return (now - lastVote) < cooldownMs
+  }
+  
+  const setVotingCooldown = (questionCode) => {
+    const cooldownKey = getVotingCooldownKey(questionCode)
+    localStorage.setItem(cooldownKey, new Date().getTime().toString())
+  }
+  
+  const getCooldownTimeRemaining = (questionCode) => {
+    const cooldownKey = getVotingCooldownKey(questionCode)
+    const lastVoteTime = localStorage.getItem(cooldownKey)
+    
+    if (!lastVoteTime) return 0
+    
+    const now = new Date().getTime()
+    const lastVote = parseInt(lastVoteTime)
+    // const cooldownMs = VOTING_COOLDOWN_HOURS * 60 * 60 * 1000
+    const cooldownMs = VOTING_COOLDOWN_MINUTES * 60 * 1000 // Convert minutes to milliseconds
+    
+    const timeRemaining = cooldownMs - (now - lastVote)
+    return Math.max(0, timeRemaining)
+  }
+  
   // Define styles at the top to avoid initialization errors
   const styles = {
     questionContainer: {
@@ -85,11 +127,41 @@ const Question = ({ question, onAnswered }) => {
   const [otherText, setOtherText] = useState('')
   const [showOtherInput, setShowOtherInput] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [votingOnCooldown, setVotingOnCooldown] = useState(false)
+  const [cooldownTimeRemaining, setCooldownTimeRemaining] = useState(0)
 
   useEffect(() => {
     console.log('Question useEffect triggered for:', question.question_code)
     fetchOptions()
-  }, [question.question_code])
+    
+    // Check voting cooldown status
+    const checkCooldown = () => {
+      const onCooldown = isVotingOnCooldown(question.question_code)
+      setVotingOnCooldown(onCooldown)
+      
+      if (onCooldown) {
+        const remaining = getCooldownTimeRemaining(question.question_code)
+        setCooldownTimeRemaining(remaining)
+      }
+    }
+    
+    checkCooldown()
+    
+    // Set up interval to update cooldown countdown
+    const interval = setInterval(() => {
+      if (votingOnCooldown) {
+        const remaining = getCooldownTimeRemaining(question.question_code)
+        setCooldownTimeRemaining(remaining)
+        
+        if (remaining <= 0) {
+          setVotingOnCooldown(false)
+          setCooldownTimeRemaining(0)
+        }
+      }
+    }, 1000) // Update every second
+    
+    return () => clearInterval(interval)
+  }, [question.question_code, votingOnCooldown])
 
   const fetchOptions = async () => {
     try {
@@ -104,6 +176,12 @@ const Question = ({ question, onAnswered }) => {
   }
 
   const handleSingleChoice = async (optionSelect) => {
+    // Check if voting is on cooldown
+    if (votingOnCooldown) {
+      console.log('Voting is on cooldown for question:', question.question_code)
+      return
+    }
+    
     try {
       // Show loading state immediately
       setIsSubmitting(true)
@@ -141,6 +219,10 @@ const Question = ({ question, onAnswered }) => {
       setCompanionAdvice(selectedOption.companion_advice)
       setShowCompanion(false)
 
+      // Set voting cooldown for this question
+      setVotingCooldown(question.question_code)
+      setVotingOnCooldown(true)
+
       // Notify parent component that question was answered
       if (onAnswered) {
         onAnswered(question)
@@ -155,6 +237,12 @@ const Question = ({ question, onAnswered }) => {
 
   const handleCheckboxSubmit = async () => {
     if (selectedOptions.length === 0) return
+
+    // Check if voting is on cooldown
+    if (votingOnCooldown) {
+      console.log('Voting is on cooldown for question:', question.question_code)
+      return
+    }
 
     try {
       // Show loading state immediately
@@ -217,6 +305,10 @@ const Question = ({ question, onAnswered }) => {
       // Clear the form
       setSelectedOptions([])
       setOtherText('')
+
+      // Set voting cooldown for this question
+      setVotingCooldown(question.question_code)
+      setVotingOnCooldown(true)
 
       // Notify parent component that question was answered
       if (onAnswered) {
@@ -329,6 +421,27 @@ const Question = ({ question, onAnswered }) => {
         </h3>
       </div>
 
+      {/* Voting Cooldown Message */}
+      {votingOnCooldown && (
+        <div style={{
+          padding: '15px 20px',
+          margin: '0 20px 20px 20px',
+          backgroundColor: 'rgba(255, 193, 7, 0.1)',
+          border: '1px solid #ffc107',
+          borderRadius: '8px',
+          color: '#856404',
+          textAlign: 'center',
+          fontSize: '14px'
+        }}>
+          <strong>⏰ Voting Cooldown Active</strong>
+          <br />
+          You've already voted on this question. Please wait{' '}
+          {Math.floor(cooldownTimeRemaining / (1000 * 60 * 60))}h{' '}
+          {Math.floor((cooldownTimeRemaining % (1000 * 60 * 60)) / (1000 * 60))}m{' '}
+          {Math.floor((cooldownTimeRemaining % (1000 * 60)) / 1000)}s before voting on this question again.
+        </div>
+      )}
+
       {!showResults && (
         <div style={styles.optionsContainer}>
           {options && options.length > 0 ? (
@@ -345,6 +458,7 @@ const Question = ({ question, onAnswered }) => {
               showOtherInput={showOtherInput}
               isSubmitting={isSubmitting}
               maxSelect={question.max_select}
+              disabled={votingOnCooldown}
             />
           ) : (
             <div style={styles.errorContainer}>
@@ -370,15 +484,15 @@ const Question = ({ question, onAnswered }) => {
           )}
           <button
             onClick={handleCheckboxSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || votingOnCooldown}
             style={{
               ...styles.submitButton,
-              background: isSubmitting ? '#1a5a57' : '#2D7D7A',
-              opacity: isSubmitting ? 0.7 : 1,
-              cursor: isSubmitting ? 'not-allowed' : 'pointer'
+              background: (isSubmitting || votingOnCooldown) ? '#1a5a57' : '#2D7D7A',
+              opacity: (isSubmitting || votingOnCooldown) ? 0.7 : 1,
+              cursor: (isSubmitting || votingOnCooldown) ? 'not-allowed' : 'pointer'
             }}
           >
-            {isSubmitting ? 'Submitting...' : 'Submit'}
+            {isSubmitting ? 'Submitting...' : (votingOnCooldown ? 'Voting Cooldown' : 'Submit')}
           </button>
         </div>
       )}

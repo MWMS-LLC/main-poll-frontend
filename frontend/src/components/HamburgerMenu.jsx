@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAudio } from '../contexts/AudioContext.jsx'
+import { useMaintenance } from '../contexts/MaintenanceContext.jsx'
 
 const HamburgerMenu = () => {
   const [open, setOpen] = useState(false)
@@ -9,6 +10,7 @@ const HamburgerMenu = () => {
   
   // Use global audio context for theme song state
   const { isThemeSongOn, toggleThemeSong } = useAudio()
+  const { isMaintenanceMode, toggleMaintenanceMode } = useMaintenance()
 
   const handleNavigate = (path) => {
     setOpen(false)
@@ -88,7 +90,6 @@ const HamburgerMenu = () => {
               }}></div>
             </label>
           </div>
-          
 
         </div>
       )}
