@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAudio } from '../contexts/AudioContext.jsx'
-import { useMaintenance } from '../contexts/MaintenanceContext.jsx'
 import HamburgerMenu from '../components/HamburgerMenu.jsx'
 import Tooltip from '../components/Tooltip'
 import Footer from '../components/Footer.jsx'
@@ -10,23 +9,7 @@ import { API_BASE } from '../config.js'
 
 const Landing = () => {
   const { triggerThemeSong } = useAudio()
-  const { isMaintenanceMode } = useMaintenance()
   const navigate = useNavigate()
-
-  // Simple maintenance mode - set this to true when you need to run DB operations
-  const MAINTENANCE_MODE = false; // Change this to true when needed
-
-  // Redirect to maintenance page if maintenance mode is active
-  useEffect(() => {
-    if (isMaintenanceMode || MAINTENANCE_MODE) {
-      navigate('/maintenance')
-    }
-  }, [isMaintenanceMode, MAINTENANCE_MODE, navigate])
-
-  // Don't render anything if in maintenance mode
-  if (isMaintenanceMode || MAINTENANCE_MODE) {
-    return null
-  }
   
   // Fallback UUID generation function for browsers that don't support crypto.randomUUID
   const generateUUID = () => {
