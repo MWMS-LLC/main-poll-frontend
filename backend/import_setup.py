@@ -96,11 +96,11 @@ def import_setup_data():
                     int(row['question_number']),
                     clean_csv_value(row['question_text']),
                     row.get('check_box', 'false').lower() == 'true',
-                    int(row.get('max_select', 1)),
+                    int(row.get('max_select', 10)) if row.get('max_select') and row.get('max_select').strip() and row.get('max_select') != '' else (10 if row.get('check_box', 'false').lower() == 'true' else 1),
                     int(row['block_number']),
                     clean_csv_value(row.get('block_text', '')),
                     row.get('is_start_question', 'false').lower() == 'true',
-                    int(row['parent_question_id']) if row.get('parent_question_id') else None,
+                    int(row['parent_question_id']) if row.get('parent_question_id') and row.get('parent_question_id').strip() else None,
                     clean_csv_value(row.get('color_code', '')),
                     clean_csv_value(row.get('version', '')),
                     datetime.now()
@@ -129,7 +129,7 @@ def import_setup_data():
                     clean_csv_value(row.get('response_message', '')),
                     clean_csv_value(row.get('companion_advice', '')),
                     clean_csv_value(row.get('tone_tag', '')),
-                    int(row['next_question_id']) if row.get('next_question_id') else None,
+                    int(row['next_question_id']) if row.get('next_question_id') and row.get('next_question_id').strip() else None,
                     clean_csv_value(row.get('version', '')),
                     datetime.now()
                 ))

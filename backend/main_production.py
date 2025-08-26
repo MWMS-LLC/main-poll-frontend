@@ -10,19 +10,36 @@ import threading
 import queue
 from contextlib import contextmanager
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure logging - force it to be very verbose
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    force=True
+)
 logger = logging.getLogger(__name__)
 
-# Create FastAPI app
+# Force print statements to flush immediately
+import sys
+sys.stdout.flush()
+sys.stderr.flush()
+
+# Initialize FastAPI app
 app = FastAPI(title="Teen Poll API", version="1.0.0")
 
-# Add CORS middleware
+# Add startup message
+logger.info("🚀 TEEN POLL API STARTING UP - DEBUG LOGGING TEST!")
+print("🚀 TEEN POLL API STARTING UP - PRINT STATEMENT TEST!")
+
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "http://localhost:5173", 
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://192.168.87.244:5174",
+        "http://192.168.87.244:5175",
         "https://teen-poll-frontend.onrender.com",
         "https://teen.myworldmysay.com",
         "https://myworldmysay.com"
@@ -34,7 +51,7 @@ app.add_middleware(
 
 # Simple connection pool using pg8000
 class SimpleConnectionPool:
-    def __init__(self, max_connections=10):
+    def __init__(self, max_connections=5):
         self.max_connections = max_connections
         self.pool = queue.Queue(maxsize=max_connections)
         self.active_connections = 0
@@ -74,14 +91,14 @@ class SimpleConnectionPool:
                     self.active_connections += 1
                     try:
                         conn = self._create_connection()
-                        logger.info(f"Created new connection. Active: {self.active_connections}")
+                        logger.info(f"Created new production connection. Active: {self.active_connections}")
                         return conn
                     except Exception as e:
                         self.active_connections -= 1
                         raise e
                 else:
                     # Wait for a connection to become available
-                    logger.info("Pool full, waiting for connection...")
+                    logger.info("Production pool full, waiting for connection...")
                     return self.pool.get(timeout=30)
     
     def return_connection(self, conn):
@@ -101,10 +118,10 @@ class SimpleConnectionPool:
                 pass
             with self.lock:
                 self.active_connections -= 1
-            logger.info(f"Closed bad connection. Active: {self.active_connections}")
+            logger.info(f"Closed bad production connection. Active: {self.active_connections}")
 
 # Global connection pool
-connection_pool = SimpleConnectionPool(max_connections=10)
+connection_pool = SimpleConnectionPool(max_connections=5)
 
 @contextmanager
 def get_db_connection():
@@ -155,10 +172,72 @@ async def health():
     """Health check endpoint that doesn't require database"""
     return {"status": "healthy", "timestamp": str(datetime.now())}
 
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database connection pool on startup"""
+    # The original code had db_pool, but it's removed.
+    # This function is kept as it was not explicitly removed by the new_code.
+    # However, the new_code removed the db_pool logic.
+    # This function will now effectively do nothing if db_pool is removed.
+    pass
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Close database connection pool on shutdown"""
+    # The original code had db_pool, but it's removed.
+    # This function is kept as it was not explicitly removed by the new_code.
+    # However, the new_code removed the db_pool logic.
+    # This function will now effectively do nothing if db_pool is removed.
+    pass
+
+# Request validation functions (replacing pydantic)
+def validate_user_request(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Validate user creation request"""
+    if not isinstance(data.get('user_uuid'), str):
+        raise HTTPException(status_code=400, detail="user_uuid must be a string")
+    if not isinstance(data.get('year_of_birth'), int):
+        raise HTTPException(status_code=400, detail="year_of_birth must be an integer")
+    return data
+
+def validate_vote_request(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Validate vote request"""
+    if not isinstance(data.get('question_code'), str):
+        raise HTTPException(status_code=400, detail="question_code must be a string")
+    if not isinstance(data.get('option_select'), str):
+        raise HTTPException(status_code=400, detail="option_select must be a string")
+    if not isinstance(data.get('user_uuid'), str):
+        raise HTTPException(status_code=400, detail="user_uuid must be a string")
+    return data
+
+def validate_checkbox_vote_request(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Validate checkbox vote request"""
+    if not isinstance(data.get('question_code'), str):
+        raise HTTPException(status_code=400, detail="question_code must be a string")
+    if not isinstance(data.get('option_selects'), list):
+        raise HTTPException(status_code=400, detail="option_selects must be a list")
+    if not isinstance(data.get('user_uuid'), str):
+        raise HTTPException(status_code=400, detail="user_uuid must be a string")
+    return data
+
+def validate_other_request(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Validate other text request"""
+    if not isinstance(data.get('question_code'), str):
+        raise HTTPException(status_code=400, detail="question_code must be a string")
+    if not isinstance(data.get('user_uuid'), str):
+        raise HTTPException(status_code=400, detail="user_uuid must be a string")
+    if not isinstance(data.get('other_text'), str):
+        raise HTTPException(status_code=400, detail="other_text must be a string")
+    return data
+
+# API endpoints
 @app.get("/test")
 async def test():
-    """Test endpoint for debugging"""
-    return {"message": "Backend is running!", "timestamp": str(datetime.now())}
+    """Test endpoint to verify code is running"""
+    print("🔍 PRINT: Test endpoint called!")
+    logger.info("🔍 Test endpoint called - debug logging is working!")
+    logger.error("🔍 ERROR: Test endpoint called - error logging test!")
+    logger.debug("🔍 DEBUG: Test endpoint called - debug logging test!")
+    return {"message": "Test endpoint working", "timestamp": str(datetime.now())}
 
 @app.get("/api/categories")
 async def get_categories():
@@ -218,14 +297,10 @@ async def get_options_by_question(question_code: str):
 async def create_user(user: Dict[str, Any]):
     """Create a new user with age validation"""
     try:
-        # Validate user data
-        if not isinstance(user.get('user_uuid'), str):
-            raise HTTPException(status_code=400, detail="user_uuid must be a string")
-        if not isinstance(user.get('year_of_birth'), int):
-            raise HTTPException(status_code=400, detail="year_of_birth must be an integer")
+        validated_data = validate_user_request(user)
         
         # Validate age (2007-2012)
-        if user['year_of_birth'] < 2007 or user['year_of_birth'] > 2012:
+        if validated_data['year_of_birth'] < 2007 or validated_data['year_of_birth'] > 2012:
             raise HTTPException(status_code=400, detail="Invalid year of birth. Must be between 2007-2012.")
         
         query = """
@@ -233,8 +308,8 @@ async def create_user(user: Dict[str, Any]):
             VALUES (%s, %s, %s)
             ON CONFLICT (user_uuid) DO NOTHING
         """
-        execute_query(query, (user['user_uuid'], user['year_of_birth'], datetime.now()), fetch=False)
-        return {"message": "User created successfully", "user_uuid": user['user_uuid']}
+        execute_query(query, (validated_data['user_uuid'], validated_data['year_of_birth'], datetime.now()), fetch=False)
+        return {"message": "User created successfully", "user_uuid": validated_data['user_uuid']}
     except Exception as e:
         logger.error(f"User creation failed: {e}")
         raise HTTPException(status_code=500, detail="User creation failed")

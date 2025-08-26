@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 import threading
 import queue
 from contextlib import contextmanager
+from fastapi import Request
+from fastapi.responses import JSONResponse
 
 # Load environment variables
 load_dotenv()
@@ -32,6 +34,23 @@ app = FastAPI(title="Teen Poll API", version="1.0.0")
 # Add startup message
 logger.info("🚀 TEEN POLL API STARTING UP - DEBUG LOGGING TEST!")
 print("🚀 TEEN POLL API STARTING UP - PRINT STATEMENT TEST!")
+
+# Maintenance mode flag - set to True when running schema/import operations
+MAINTENANCE_MODE = False
+
+# Maintenance mode middleware
+@app.middleware("http")
+async def maintenance_mode_middleware(request: Request, call_next):
+    if MAINTENANCE_MODE and request.url.path != "/maintenance":
+        return JSONResponse(
+            status_code=503,
+            content={
+                "error": "maintenance_mode",
+                "message": "We're currently updating the app. Please try again in a few minutes.",
+                "estimated_duration": "2-5 minutes"
+            }
+        )
+    return await call_next(request)
 
 # CORS middleware
 app.add_middleware(
@@ -288,20 +307,31 @@ async def get_options_by_question(question_code: str):
 async def create_user(user: Dict[str, Any]):
     """Create a new user with age validation"""
     try:
+        logger.info(f"Creating user with data: {user}")
         validated_data = validate_user_request(user)
+        logger.info(f"Validation passed: {validated_data}")
+        
         # Validate age (2007-2012)
         if validated_data['year_of_birth'] < 2007 or validated_data['year_of_birth'] > 2012:
+            logger.warning(f"Age validation failed: {validated_data['year_of_birth']}")
             raise HTTPException(status_code=400, detail="Invalid year of birth. Must be between 2007-2012.")
         
+        logger.info("Age validation passed, inserting user into database")
         query = """
             INSERT INTO users (user_uuid, year_of_birth, created_at)
             VALUES (%s, %s, %s)
             ON CONFLICT (user_uuid) DO NOTHING
         """
         execute_query(query, (validated_data['user_uuid'], validated_data['year_of_birth'], datetime.now()), fetch=False)
+        logger.info(f"User created successfully: {validated_data['user_uuid']}")
         return {"message": "User created successfully", "user_uuid": validated_data['user_uuid']}
+    except HTTPException as e:
+        logger.info(f"HTTPException caught and re-raising: {e.status_code} - {e.detail}")
+        # Re-raise HTTPExceptions (like validation errors) without modification
+        raise
     except Exception as e:
-        logger.error(f"User creation failed: {e}")
+        logger.error(f"Unexpected error in user creation: {e}")
+        logger.error(f"Exception type: {type(e)}")
         raise HTTPException(status_code=500, detail="User creation failed")
 
 @app.get("/api/users")
@@ -602,6 +632,28 @@ async def get_results(question_code: str):
     except Exception as e:
         logger.error(f"Error fetching results: {e}")
         raise HTTPException(status_code=500, detail="Error fetching results")
+
+@app.get("/maintenance")
+async def maintenance_status():
+    """Check if the app is in maintenance mode"""
+    return {
+        "maintenance_mode": MAINTENANCE_MODE,
+        "status": "maintenance" if MAINTENANCE_MODE else "operational",
+        "message": "App is currently under maintenance" if MAINTENANCE_MODE else "App is running normally"
+    }
+
+@app.post("/maintenance/toggle")
+async def toggle_maintenance():
+    """Toggle maintenance mode on/off (for admin use)"""
+    global MAINTENANCE_MODE
+    MAINTENANCE_MODE = not MAINTENANCE_MODE
+    status = "ON" if MAINTENANCE_MODE else "OFF"
+    logger.info(f"Maintenance mode toggled: {status}")
+    return {
+        "maintenance_mode": MAINTENANCE_MODE,
+        "message": f"Maintenance mode turned {status}",
+        "status": "maintenance" if MAINTENANCE_MODE else "operational"
+    }
 
 if __name__ == "__main__":
     import uvicorn
