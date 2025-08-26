@@ -344,6 +344,7 @@ const Question = ({ question, onAnswered }) => {
               setOtherText={setOtherText}
               showOtherInput={showOtherInput}
               isSubmitting={isSubmitting}
+              maxSelect={question.max_select}
             />
           ) : (
             <div style={styles.errorContainer}>
@@ -356,18 +357,30 @@ const Question = ({ question, onAnswered }) => {
       )}
 
       {question.check_box && !showResults && selectedOptions.length > 0 && (
-        <button
-          onClick={handleCheckboxSubmit}
-          disabled={isSubmitting}
-          style={{
-            ...styles.submitButton,
-            background: isSubmitting ? '#1a5a57' : '#2D7D7A',
-            opacity: isSubmitting ? 0.7 : 1,
-            cursor: isSubmitting ? 'not-allowed' : 'pointer'
-          }}
-        >
-          {isSubmitting ? 'Submitting...' : 'Submit'}
-        </button>
+        <div style={{ marginTop: '15px' }}>
+          {question.max_select && question.max_select > 1 && (
+            <div style={{ 
+              marginBottom: '10px', 
+              fontSize: '14px', 
+              color: '#666',
+              textAlign: 'center'
+            }}>
+              {selectedOptions.length}/{question.max_select} options selected
+            </div>
+          )}
+          <button
+            onClick={handleCheckboxSubmit}
+            disabled={isSubmitting}
+            style={{
+              ...styles.submitButton,
+              background: isSubmitting ? '#1a5a57' : '#2D7D7A',
+              opacity: isSubmitting ? 0.7 : 1,
+              cursor: isSubmitting ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit'}
+          </button>
+        </div>
       )}
 
       {showResults && (

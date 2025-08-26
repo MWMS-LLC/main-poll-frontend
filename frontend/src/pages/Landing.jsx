@@ -198,7 +198,8 @@ const Landing = () => {
     9: { gradient: "linear-gradient(135deg, #E53E3E 0%, #C53030 100%)", emoji: "" }, // Family
     10: { gradient: "linear-gradient(135deg, #5A67D8 0%, #4C51BF 100%)", emoji: "" }, // Dream Era
     11: { gradient: "linear-gradient(135deg, #319795 0%, #2C7A7B 100%)", emoji: "" }, // School
-    12: { gradient: "linear-gradient(135deg, #C53030 0%, #9B2C2C 100%)", emoji: "" }, // Chaos
+    12: { gradient: "linear-gradient(135deg, #ED8936 0%, #DD6B20 100%)", emoji: "" }, // Fun Stuff - Orange
+    13: { gradient: "linear-gradient(135deg, #E53E3E 0%, #C53030 100%)", emoji: "" }, // Chaos - Red
   }
   const getCategoryStyle = (categoryId) => {
     const style = categoryGradients[categoryId] || { 
@@ -488,12 +489,13 @@ const Landing = () => {
             console.log('Category data:', { 
               id: category.id, 
               name: category.category_name, 
-              text: category.category_text 
+              text: category.category_text,
+              description: category.description
             })
             return (
               <Tooltip 
                 key={category.id}
-                content={category.category_text}
+                content={category.category_text || category.description}
                 position="top"
               >
                 <button

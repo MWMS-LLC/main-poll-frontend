@@ -38,6 +38,7 @@ CREATE TABLE questions (
     question_number INTEGER NOT NULL,
     question_text TEXT NOT NULL,
     check_box BOOLEAN DEFAULT FALSE,
+    max_select INTEGER DEFAULT 1,
     block_number INTEGER NOT NULL,
     block_text TEXT,
     is_start_question BOOLEAN DEFAULT FALSE,

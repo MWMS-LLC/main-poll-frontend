@@ -311,7 +311,7 @@ async def checkbox_vote(vote_data: Dict[str, Any]):
     try:
         # Get question and category details for denormalization
         question_query = """
-            SELECT q.question_text, q.question_number, c.category_name, c.id as category_id, q.block_number
+            SELECT q.question_text, q.question_number, c.category_name, c.id as category_id, q.block_number, q.max_select
             FROM questions q
             JOIN categories c ON q.category_id = c.id
             WHERE q.question_code = %s
@@ -322,6 +322,13 @@ async def checkbox_vote(vote_data: Dict[str, Any]):
             raise HTTPException(status_code=404, detail="Question not found")
         
         question = question_info[0]
+        
+        # Validate max_select limit
+        if question['max_select'] and len(vote_data['option_selects']) > question['max_select']:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Too many options selected. Maximum allowed: {question['max_select']}"
+            )
         
         # Calculate weight for each option
         weight = 1.0 / len(vote_data['option_selects'])

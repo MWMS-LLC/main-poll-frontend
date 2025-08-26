@@ -11,7 +11,8 @@ const OptionsList = ({
   otherText,
   setOtherText,
   showOtherInput,
-  isSubmitting
+  isSubmitting,
+  maxSelect
 }) => {
 
 
@@ -21,6 +22,12 @@ const OptionsList = ({
     if (isCheckbox) {
       // For checkboxes, toggle the selection
       const isSelected = selectedOptions.includes(optionSelect)
+      
+      if (!isSelected && maxSelect && selectedOptions.length >= maxSelect) {
+        // Don't allow more selections if max limit reached
+        return
+      }
+      
       onOptionChange(optionSelect, !isSelected)
     } else {
       // For single choice, submit immediately
@@ -64,14 +71,16 @@ const OptionsList = ({
                     type="checkbox"
                     checked={selectedOptions.includes(option.option_select)}
                     onChange={(e) => onOptionChange(option.option_select, e.target.checked)}
+                    disabled={!selectedOptions.includes(option.option_select) && maxSelect && selectedOptions.length >= maxSelect}
                     style={{ 
                       transform: 'scale(1.3)',
-                      accentColor: '#2D7D7A'
+                      accentColor: '#2D7D7A',
+                      opacity: (!selectedOptions.includes(option.option_select) && maxSelect && selectedOptions.length >= maxSelect) ? 0.5 : 1
                     }}
                   />
                   <label 
                     style={{ 
-                      cursor: 'pointer', 
+                      cursor: (!selectedOptions.includes(option.option_select) && maxSelect && selectedOptions.length >= maxSelect) ? 'not-allowed' : 'pointer', 
                       flex: 1,
                       padding: '15px 20px',
                       border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -81,7 +90,7 @@ const OptionsList = ({
                         : 'transparent',
                       color: selectedOptions.includes(option.option_select) 
                         ? '#2D7D7A' 
-                        : 'white',
+                        : (!selectedOptions.includes(option.option_select) && maxSelect && selectedOptions.length >= maxSelect) ? 'rgba(255, 255, 255, 0.5)' : 'white',
                       fontSize: '16px',
                       fontWeight: '500',
                       transition: 'all 0.2s ease',
@@ -89,7 +98,11 @@ const OptionsList = ({
                         ? '#2D7D7A' 
                         : 'rgba(255, 255, 255, 0.2)'
                     }}
-                    onClick={() => onOptionChange(option.option_select, !selectedOptions.includes(option.option_select))}
+                    onClick={() => {
+                      if (!(!selectedOptions.includes(option.option_select) && maxSelect && selectedOptions.length >= maxSelect)) {
+                        onOptionChange(option.option_select, !selectedOptions.includes(option.option_select))
+                      }
+                    }}
                   >
                     {option.option_text}
                   </label>
@@ -173,14 +186,16 @@ const OptionsList = ({
                   type="checkbox"
                   checked={selectedOptions.includes(option.option_select)}
                   onChange={(e) => onOptionChange(option.option_select, e.target.checked)}
+                  disabled={!selectedOptions.includes(option.option_select) && maxSelect && selectedOptions.length >= maxSelect}
                   style={{ 
                     transform: 'scale(1.3)',
-                    accentColor: '#2D7D7A'
+                    accentColor: '#2D7D7A',
+                    opacity: (!selectedOptions.includes(option.option_select) && maxSelect && selectedOptions.length >= maxSelect) ? 0.5 : 1
                   }}
                 />
                                   <label 
                     style={{ 
-                      cursor: 'pointer', 
+                      cursor: (!selectedOptions.includes(option.option_select) && maxSelect && selectedOptions.length >= maxSelect) ? 'not-allowed' : 'pointer', 
                       flex: 1,
                       padding: '15px 20px',
                       border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -190,7 +205,7 @@ const OptionsList = ({
                         : 'transparent',
                       color: selectedOptions.includes(option.option_select) 
                         ? '#2D7D7A' 
-                        : 'white',
+                        : (!selectedOptions.includes(option.option_select) && maxSelect && selectedOptions.length >= maxSelect) ? 'rgba(255, 255, 255, 0.5)' : 'white',
                       fontSize: '16px',
                       fontWeight: '500',
                       transition: 'all 0.2s ease',
@@ -198,7 +213,11 @@ const OptionsList = ({
                         ? '#2D7D7A' 
                         : 'rgba(255, 255, 255, 0.2)'
                     }}
-                  onClick={() => onOptionChange(option.option_select, !selectedOptions.includes(option.option_select))}
+                  onClick={() => {
+                    if (!(!selectedOptions.includes(option.option_select) && maxSelect && selectedOptions.length >= maxSelect)) {
+                      onOptionChange(option.option_select, !selectedOptions.includes(option.option_select))
+                    }
+                  }}
                 >
                   {option.option_text}
                 </label>

@@ -88,14 +88,15 @@ def import_setup_data():
             reader = csv.DictReader(f)
             for row in reader:
                 cursor.execute("""
-                    INSERT INTO questions (category_id, question_code, question_number, question_text, check_box, block_number, block_text, is_start_question, parent_question_id, color_code, version, created_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    INSERT INTO questions (category_id, question_code, question_number, question_text, check_box, max_select, block_number, block_text, is_start_question, parent_question_id, color_code, version, created_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (
                     int(row['category_id']),
                     clean_csv_value(row['question_code']),
                     int(row['question_number']),
                     clean_csv_value(row['question_text']),
                     row.get('check_box', 'false').lower() == 'true',
+                    int(row.get('max_select', 1)),
                     int(row['block_number']),
                     clean_csv_value(row.get('block_text', '')),
                     row.get('is_start_question', 'false').lower() == 'true',
