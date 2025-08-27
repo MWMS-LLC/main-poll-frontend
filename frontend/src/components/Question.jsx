@@ -134,10 +134,18 @@ const Question = ({ question, onAnswered }) => {
     console.log('Question useEffect triggered for:', question.question_code)
     fetchOptions()
     
-    // Don't check cooldown on initial load - only check when user tries to vote
-    // This prevents showing cooldown message on first visit
+    // Clear any existing cooldown data on page load
+    // This ensures the clock only shows when they try to vote again during cooldown
+    const clearExistingCooldown = () => {
+      const cooldownKey = getVotingCooldownKey(question.question_code)
+      localStorage.removeItem(cooldownKey)
+      setVotingOnCooldown(false)
+      setCooldownTimeRemaining(0)
+    }
     
-    // Set up interval to update cooldown countdown only if already on cooldown
+    clearExistingCooldown()
+    
+    // Set up interval to update cooldown countdown only if user is actively on cooldown
     const interval = setInterval(() => {
       if (votingOnCooldown) {
         const remaining = getCooldownTimeRemaining(question.question_code)
@@ -166,12 +174,8 @@ const Question = ({ question, onAnswered }) => {
   }
 
   const handleSingleChoice = async (optionSelect) => {
-    // Check if voting is on cooldown when user actually tries to vote
-    const onCooldown = isVotingOnCooldown(question.question_code)
-    if (onCooldown) {
-      setVotingOnCooldown(true)
-      const remaining = getCooldownTimeRemaining(question.question_code)
-      setCooldownTimeRemaining(remaining)
+    // Check if voting is on cooldown
+    if (votingOnCooldown) {
       console.log('Voting is on cooldown for question:', question.question_code)
       return
     }
@@ -232,12 +236,8 @@ const Question = ({ question, onAnswered }) => {
   const handleCheckboxSubmit = async () => {
     if (selectedOptions.length === 0) return
 
-    // Check if voting is on cooldown when user actually tries to vote
-    const onCooldown = isVotingOnCooldown(question.question_code)
-    if (onCooldown) {
-      setVotingOnCooldown(true)
-      const remaining = getCooldownTimeRemaining(question.question_code)
-      setCooldownTimeRemaining(remaining)
+    // Check if voting is on cooldown
+    if (votingOnCooldown) {
       console.log('Voting is on cooldown for question:', question.question_code)
       return
     }
