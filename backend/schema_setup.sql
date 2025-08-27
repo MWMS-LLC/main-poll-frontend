@@ -82,3 +82,22 @@ CREATE INDEX idx_options_category ON options(category_id);
 CREATE INDEX idx_options_question ON options(question_code);
 CREATE INDEX idx_options_select ON options(option_select);
 
+-- Create soundtracks table for music playlist functionality
+CREATE TABLE soundtracks (
+    id SERIAL PRIMARY KEY,
+    song_id VARCHAR(50) UNIQUE NOT NULL,
+    song_title VARCHAR(255) NOT NULL,
+    mood_tag TEXT,
+    playlist_tag TEXT,
+    lyrics_snippet TEXT,
+    featured BOOLEAN DEFAULT FALSE,
+    featured_order INTEGER DEFAULT 0,
+    file_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for soundtracks
+CREATE INDEX idx_soundtracks_featured ON soundtracks(featured, featured_order);
+CREATE INDEX idx_soundtracks_playlist ON soundtracks USING GIN(to_tsvector('english', playlist_tag));
+CREATE INDEX idx_soundtracks_mood ON soundtracks USING GIN(to_tsvector('english', mood_tag));
+

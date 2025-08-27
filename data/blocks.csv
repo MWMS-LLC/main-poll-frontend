@@ -13,48 +13,51 @@
 9,2,4,2_4,"Fitting In …
 🎵[playlist:Spiral]",1,f08f896d-b052-4915-a04b-a162a8a54797,Friends
 10,2,5,2_5,Inviting …,1,c78369e0-81cb-4d76-91bc-5911e4452b29,Friends
-11,3,1,3_1,"Scroll. Post. Spiral.
-🎵[playlist:Spiral]",1,ac841676-01ad-4c33-b067-f1ba5986942b,Social_Media
-12,3,2,3_2,Real Feels vs Feed Feels,1,567dc605-3515-445b-9a21-bb18db5d8094,Social_Media
-13,3,3,3_3,"Posts I Regret, Posts I Miss",1,4b2bae2a-da65-49fa-98c9-3c4543f82128,Social_Media
-14,3,4,3_4,"Trends, Friends & Emotional Graduation",1,f3e170a0-6292-44e7-8e22-984e736ae7c3,Social_Media
-15,3,5,3_5,Birthday Posts: Joy or Judgment?,1,c9620814-e3d8-4067-a952-60e05667020e,Social_Media
-16,4,1,4_1,"Soft Power, Loud Heart",1,ad021302-66f2-4c2e-b8ed-8d8648adf680,Pinky
-17,4,2,4_2,"Tiny Things, Big Feelings
-🎵[playlist:Pinky]",1,7b91e32b-3185-4090-b77d-a168f464717e,Pinky
-18,4,3,4_3,"Daily Drip, Inner Script",1,96f426b4-f10e-4111-b6e5-a5560e05514a,Pinky
-19,5,1,5_1,"Lowkey Legends
+11,3,1,3_1,Online Life,1,a78369e0-81cb-4c76-91bc-6911e4452b30,Online Life
+12,3,2,3_2,"Scroll. Post. Spiral.
+🎵[playlist:Spiral]",1,ac841676-01ad-4c33-b067-f1ba5986942b,Online Life
+13,3,3,3_3,Real Feels vs Feed Feels,1,567dc605-3515-445b-9a21-bb18db5d8094,Online Life
+14,3,4,3_4,"Posts I Regret, Posts I Miss",1,4b2bae2a-da65-49fa-98c9-3c4543f82128,Online Life
+15,3,5,3_5,"Trends, Friends & Emotional Graduation",1,f3e170a0-6292-44e7-8e22-984e736ae7c3,Online Life
+16,3,6,3_6,Birthday Posts: Joy or Judgment?,1,c9620814-e3d8-4067-a952-60e05667020e,Online Life
+17,4,1,4_1,"Soft Power, Loud Heart",1,ad021302-66f2-4c2e-b8ed-8d8648adf680,Pinky
+18,4,2,4_2,"Tiny Things, Big Feelings",1,7b91e32b-3185-4090-b77d-a168f464717e,Pinky
+19,4,3,4_3,"Daily Drip, Inner Script",1,96f426b4-f10e-4111-b6e5-a5560e05514a,Pinky
+20,5,1,5_1,"Lowkey Legends
 🎵[playlist:Lowkey]",1,3d928ea4-ce89-41ff-b41d-e3f08b52ed5c,Lowkey
-20,5,2,5_2,"Quiet Mode, Full Power",1,fabc58eb-c8d4-40df-b33a-bf4f67df7303,Lowkey
-21,6,1,6_1,Real Me & Summer Vibes,1,94a5aca4-8390-45e7-90cd-a7a80430e263,Personal
-22,6,2,6_2,"Trust, Worth & What You Carry
+21,5,2,5_2,"Quiet Mode, Full Power",1,fabc58eb-c8d4-40df-b33a-bf4f67df7303,Lowkey
+22,6,1,6_1,Real Me & Summer Vibes,1,94a5aca4-8390-45e7-90cd-a7a80430e263,Personal
+23,6,2,6_2,"Trust, Worth & What You Carry
 🎵[playlist:Believe]",1,f238fbf6-f59a-4e12-bc8c-23792ce1a694,Personal
-23,6,3,6_3,"Regret, Repair, and the Road Ahead",1,fb9d45d3-d052-452e-8aa7-9ccaf8accf4f,Personal
-24,6,4,6_4,"Color, Weather, Sound: You",1,184b9e1f-86a0-4d37-be0b-8fcbd9273f10,Personal
-25,6,5,6_5,What They Donâ€™t Get,1,59dffbd5-d94e-4804-bbd3-9fa32c447fff,Personal
-26,6,6,6_6,"Like, You Know, Kinda Confident",1,26de9008-f30e-4e5d-bf1a-009ce95c16cd,Personal
-27,6,7,6_7,Outside Looking In,1,00c2027f-948a-40f7-8bff-fa98119fc7d9,Personal
-28,6,8,6_8,"Inspiration & Direction
+24,6,3,6_3,"Regret, Repair, and the Road Ahead",1,fb9d45d3-d052-452e-8aa7-9ccaf8accf4f,Personal
+25,6,4,6_4,"Color, Weather, Sound: You",1,184b9e1f-86a0-4d37-be0b-8fcbd9273f10,Personal
+26,6,5,6_5,What They Donâ€™t Get,1,59dffbd5-d94e-4804-bbd3-9fa32c447fff,Personal
+27,6,6,6_6,"Like, You Know, Kinda Confident",1,26de9008-f30e-4e5d-bf1a-009ce95c16cd,Personal
+28,6,7,6_7,Outside Looking In,1,00c2027f-948a-40f7-8bff-fa98119fc7d9,Personal
+29,6,8,6_8,"Inspiration & Direction
 🎵[playlist:Believe]",1,eb4e7798-0bbd-40f7-971d-a22396ac0892,Personal
-29,7,1,7_1,"Forgive, for Real",1,ce5345cb-21ee-481d-8f46-2bf76f452cb8,Healing
-30,7,2,7_2,The Way Forward,1,148ec956-7aa9-493d-996d-c562cb0d941d,Healing
-31,8,1,8_1,"I Know Who I Am
+30,7,1,7_1,"Forgive, for Real",1,ce5345cb-21ee-481d-8f46-2bf76f452cb8,Healing
+31,7,2,7_2,The Way Forward,1,148ec956-7aa9-493d-996d-c562cb0d941d,Healing
+32,8,1,8_1,"I Know Who I Am
 🎵[playlist:Believe]",1,ea1ab8c0-6326-41b7-9bd4-1eb136cc6780,Defense
-32,8,2,8_2,Someone Has to Do Something,1,ff70ab10-9733-489c-9251-096304f500c3,Defense
-33,9,1,9_1,"Home is a Vibe
+33,8,2,8_2,Someone Has to Do Something,1,ff70ab10-9733-489c-9251-096304f500c3,Defense
+34,9,1,9_1,"Home is a Vibe
 🎵[playlist:Family]",1,a01a8edc-8531-4f31-b5d5-2db71ef141a1,Family
-34,9,2,9_2,Household,1,fe1dd49b-a67c-466a-bee1-346ce35471b9,Family
-35,9,3,9_3,When Home Gets Loud,1,752f937f-796e-4473-9363-5ec3b9b3e1c4,Family
-36,9,4,9_4,Chores,1,17314ec6-fb10-42ca-a5ae-6d1e585d310e,Family
-37,10,1,10_1,"AI & Me: Use It, Build It, or Stop it
+35,9,2,9_2,Household,1,fe1dd49b-a67c-466a-bee1-346ce35471b9,Family
+36,9,3,9_3,When Home Gets Loud,1,752f937f-796e-4473-9363-5ec3b9b3e1c4,Family
+37,9,4,9_4,Chores,1,17314ec6-fb10-42ca-a5ae-6d1e585d310e,Family
+38,10,1,10_1,"AI & Me: Use It, Build It, or Stop it
 🎵[playlist:AI_&_My_Future]",1,ab4a7f45-aac8-40b2-b9b6-ebda9b0afd50,Dream Era
-38,10,2,10_2,"Work, Worth & the AI Economy",1,9c3f7c6c-8de8-45fb-b4a0-e6f846bb6d4b,Dream Era
-39,10,3,10_3,"Future Me: Real, Brave, and Still Human
+39,10,2,10_2,"Work, Worth & the AI Economy",1,9c3f7c6c-8de8-45fb-b4a0-e6f846bb6d4b,Dream Era
+40,10,3,10_3,"Future Me: Real, Brave, and Still Human
 🎵[playlist:Theme_Song]",1,5c8edc2d-a1b4-4caf-a49d-ff123225a444,Dream Era
-40,11,1,11_1,Ready or Not,1,f8dfe6a4-ee2c-4749-a700-15c2e3c4b1b7,School
-41,11,2,11_2,Between the Bells,1,ad23c57b-844e-40b0-af2b-fb615a28d491,School
-42,11,3,11_3,When You Speak Up,1,77f0a234-b895-404e-82e5-797d386d44de,School
-43,11,4,11_4,Rethinking School ,1,7d60137a-4506-4f82-8c80-6216060ddc37,School
-44,12,1,12_1,"Bodily Betrayal 101
-🎵[playlist:Chaos]",1,7be8b015-0f92-4fd1-932e-b5efa2d02acd,Chaos
-45,12,2,12_2,Cringe & Chaos Edition,1,e123c4f7-2e80-45ad-bca4-cbb415879eb6,Chaos
+41,11,1,11_1,Ready or Not,1,f8dfe6a4-ee2c-4749-a700-15c2e3c4b1b7,School
+42,11,2,11_2,Between the Bells,1,ad23c57b-844e-40b0-af2b-fb615a28d491,School
+43,11,3,11_3,When You Speak Up,1,77f0a234-b895-404e-82e5-797d386d44de,School
+44,11,4,11_4,Rethinking School ,1,7d60137a-4506-4f82-8c80-6216060ddc37,School
+45,12,1,12_1,Video Games,1,e8dfe6a4-ee2c-4749-a700-15c2e3c4b1b7,Fun_Stuff
+46,12,2,12_2,Food,1,bd23c57b-844e-40b0-af2b-fb615a28d491,Fun_Stuff
+47,12,3,12_3,Movies and Shows,1,87f0a234-b895-404e-82e5-797d386d44de,Fun_Stuff
+48,12,4,12_4,Sports,1,8d60137a-4506-4f82-8c80-6216060ddc37,Fun_Stuff
+49,13,1,13_1,Bodily Betrayal 101,1,7be8b015-0f92-4fd1-932e-b5efa2d02acd,Chaos
+50,13,2,13_2,Cringe & Chaos Edition,1,e123c4f7-2e80-45ad-bca4-cbb415879eb6,Chaos

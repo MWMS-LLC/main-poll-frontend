@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import OptionsList from './OptionsList.jsx'
 import ValidationBox from './ValidationBox.jsx'
@@ -73,6 +74,12 @@ const Question = ({ question, onAnswered }) => {
       justifyContent: 'space-between',
       boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
     },
+    questionHeaderContent: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      width: '100%'
+    },
     questionTitle: {
       margin: 0,
       fontSize: '20px',
@@ -81,7 +88,9 @@ const Question = ({ question, onAnswered }) => {
       lineHeight: '1.6',
       whiteSpace: 'pre-wrap',
       wordWrap: 'break-word',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif',
+      flex: 1,
+      marginRight: '15px'
     },
     optionsContainer: {
       marginBottom: '20px'
@@ -135,6 +144,56 @@ const Question = ({ question, onAnswered }) => {
       fontSize: '16px',
       transition: 'background-color 0.3s ease',
       fontWeight: '500'
+    },
+    playlistTag: {
+      fontSize: '14px',
+      opacity: 0.8,
+      fontStyle: 'italic',
+      marginTop: '8px',
+      color: 'rgba(255, 255, 255, 0.9)',
+      textAlign: 'center'
+    },
+    playlistToggleButton: {
+      background: 'rgba(255, 255, 255, 0.1)',
+      border: '1px solid rgba(255, 255, 255, 0.2)',
+      borderRadius: '50%',
+      width: '40px',
+      height: '40px',
+      fontSize: '18px',
+      color: 'rgba(255, 255, 255, 0.8)',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: '15px',
+      flexShrink: 0
+    },
+    playlistButtonContainer: {
+      padding: '20px 32px',
+      background: 'rgba(255, 255, 255, 0.05)',
+      borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    },
+    playlistButton: {
+      background: 'linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '25px',
+      padding: '12px 24px',
+      fontSize: '16px',
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      boxShadow: '0 4px 15px rgba(78, 205, 196, 0.3)'
+    },
+    playlistIcon: {
+      fontSize: '18px'
     }
   }
 
@@ -152,6 +211,8 @@ const Question = ({ question, onAnswered }) => {
   const [votingOnCooldown, setVotingOnCooldown] = useState(false)
   const [cooldownTimeRemaining, setCooldownTimeRemaining] = useState(0)
   const [error, setError] = useState(null)
+  const [expandedPlaylist, setExpandedPlaylist] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     console.log('Question useEffect triggered for:', question.question_code)
@@ -428,6 +489,26 @@ const Question = ({ question, onAnswered }) => {
     setSelectedOptions([])
   }
 
+  // Extract playlist from question text if it contains [playlist:name]
+  const extractPlaylist = (questionText) => {
+    const playlistMatch = questionText.match(/🎵\[playlist:([^\]]+)\]/)
+    return playlistMatch ? playlistMatch[1] : null
+  }
+
+  const handlePlaylistToggle = (e) => {
+    e.stopPropagation()
+    setExpandedPlaylist(!expandedPlaylist)
+  }
+
+  const handlePlaylistClick = () => {
+    const playlist = extractPlaylist(question.question_text)
+    if (playlist) {
+      navigate(`/soundtrack?playlist=${encodeURIComponent(playlist)}`)
+    }
+  }
+
+  const questionPlaylist = extractPlaylist(question.question_text)
+
   // Utility function to clear localStorage and start fresh
   const clearLocalStorageAndRefresh = () => {
     try {
@@ -485,10 +566,43 @@ const Question = ({ question, onAnswered }) => {
         ...styles.questionHeader,
         background: question.color_code ? `linear-gradient(135deg, ${question.color_code} 0%, ${question.color_code}CC 100%)` : 'linear-gradient(135deg, #4A5568 0%, #2D3748 100%)'
       }}>
-        <h3 style={styles.questionTitle}>
-          {question.question_text || 'Question loading...'}
-        </h3>
+        <div style={styles.questionHeaderContent}>
+          <h3 style={styles.questionTitle}>
+            {question.question_text || 'Question loading...'}
+          </h3>
+          
+          {/* Playlist Toggle Button - Only show if question has playlist */}
+          {questionPlaylist && (
+            <button
+              style={styles.playlistToggleButton}
+              className="playlist-toggle-hover"
+              onClick={handlePlaylistToggle}
+              title="Toggle playlist"
+            >
+              🎵
+            </button>
+          )}
+        </div>
+        
+        {/* Playlist Tag - Show if question has playlist */}
+        {questionPlaylist && (
+          <div style={styles.playlistTag}>[playlist:{questionPlaylist}]</div>
+        )}
       </div>
+      
+      {/* Playlist Button - Only show when expanded and has playlist */}
+      {expandedPlaylist && questionPlaylist && (
+        <div style={styles.playlistButtonContainer}>
+          <button
+            style={styles.playlistButton}
+            className="playlist-button-hover"
+            onClick={handlePlaylistClick}
+          >
+            <span style={styles.playlistIcon}>🎵</span>
+            Listen to Playlist
+          </button>
+        </div>
+      )}
 
       {/* Voting Cooldown Message */}
       {votingOnCooldown && (
