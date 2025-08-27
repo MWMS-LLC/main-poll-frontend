@@ -4,6 +4,10 @@ import uuid
 from datetime import datetime, timedelta
 import pg8000
 from urllib.parse import urlparse
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 def get_db_connection():
     """Get database connection using DATABASE_URL from environment"""

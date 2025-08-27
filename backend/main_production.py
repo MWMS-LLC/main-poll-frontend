@@ -620,6 +620,160 @@ async def get_results(question_code: str):
         logger.error(f"Error fetching results: {e}")
         raise HTTPException(status_code=500, detail="Error fetching results")
 
+@app.post("/api/setup")
+async def setup_database():
+    """Setup database with initial data (categories, blocks, questions, options)"""
+    try:
+        logger.info("🔄 Starting database setup...")
+        
+        # Import CSV data
+        import csv
+        import os
+        from datetime import datetime
+        
+        def clean_csv_value(value):
+            """Clean CSV values and handle multi-line content"""
+            if value is None:
+                return None
+            value = str(value).strip().replace('\ufeff', '')
+            if '\n' in value:
+                value = value.replace('\n', ' ')
+            return value
+        
+        # Get database connection
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        try:
+            # Import categories
+            logger.info("📁 Importing categories...")
+            with open('data/categories.csv', 'r', encoding='utf-8-sig') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    cursor.execute("""
+                        INSERT INTO categories (category_name, category_text, sort_order, created_at)
+                        VALUES (%s, %s, %s, %s)
+                        ON CONFLICT (category_name) DO NOTHING
+                    """, (
+                        clean_csv_value(row['category_name']),
+                        clean_csv_value(row.get('category_text', '')),
+                        int(row.get('sort_order', 0)),
+                        datetime.now()
+                    ))
+            logger.info("✅ Categories imported")
+            
+            # Import blocks
+            logger.info("📁 Importing blocks...")
+            with open('data/blocks.csv', 'r', encoding='utf-8-sig') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    cursor.execute("""
+                        INSERT INTO blocks (category_id, block_number, block_code, block_text, version, uuid, category_name, created_at)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        ON CONFLICT (block_code) DO NOTHING
+                    """, (
+                        int(row['category_id']),
+                        int(row['block_number']),
+                        clean_csv_value(row['block_code']),
+                        clean_csv_value(row['block_text']),
+                        clean_csv_value(row.get('version', '')),
+                        clean_csv_value(row.get('uuid', '')),
+                        clean_csv_value(row.get('category_name', '')),
+                        datetime.now()
+                    ))
+            logger.info("✅ Blocks imported")
+            
+            # Import questions
+            logger.info("📁 Importing questions...")
+            with open('data/questions.csv', 'r', encoding='utf-8-sig') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    cursor.execute("""
+                        INSERT INTO questions (category_id, question_code, question_number, question_text, check_box, max_select, block_number, block_text, is_start_question, parent_question_id, color_code, version, created_at)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        ON CONFLICT (question_code) DO NOTHING
+                    """, (
+                        int(row['category_id']),
+                        clean_csv_value(row['question_code']),
+                        int(row['question_number']),
+                        clean_csv_value(row['question_text']),
+                        row.get('check_box', 'false').lower() == 'true',
+                        int(row.get('max_select', 10)) if row.get('max_select') and row.get('max_select').strip() and row.get('max_select') != '' else (10 if row.get('check_box', 'false').lower() == 'true' else 1),
+                        int(row['block_number']),
+                        clean_csv_value(row['block_text']),
+                        row.get('is_start_question', 'false').lower() == 'true',
+                        int(row['parent_question_id']) if row.get('parent_question_id') and row.get('parent_question_id').strip() else None,
+                        clean_csv_value(row.get('color_code', '')),
+                        clean_csv_value(row.get('version', '')),
+                        datetime.now()
+                    ))
+            logger.info("✅ Questions imported")
+            
+            # Import options
+            logger.info("📁 Importing options...")
+            with open('data/options.csv', 'r', encoding='utf-8-sig') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    cursor.execute("""
+                        INSERT INTO options (question_code, option_select, option_text, sort_order, weight, created_at)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                        ON CONFLICT (question_code, option_select) DO NOTHING
+                    """, (
+                        clean_csv_value(row['question_code']),
+                        clean_csv_value(row['option_select']),
+                        clean_csv_value(row['option_text']),
+                        int(row.get('sort_order', 0)),
+                        float(row.get('weight', 1.0)),
+                        datetime.now()
+                    ))
+            logger.info("✅ Options imported")
+            
+            # Import soundtracks
+            logger.info("📁 Importing soundtracks...")
+            with open('data/soundtracks.csv', 'r', encoding='utf-8-sig') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    cursor.execute("""
+                        INSERT INTO soundtracks (title, artist, playlist, mood, energy, created_at)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                        ON CONFLICT (title, artist) DO NOTHING
+                    """, (
+                        clean_csv_value(row['title']),
+                        clean_csv_value(row['artist']),
+                        clean_csv_value(row['playlist']),
+                        clean_csv_value(row['mood']),
+                        clean_csv_value(row['energy']),
+                        datetime.now()
+                    ))
+            logger.info("✅ Soundtracks imported")
+            
+            # Commit all changes
+            conn.commit()
+            logger.info("🎉 Database setup completed successfully!")
+            
+            return {
+                "message": "Database setup completed successfully",
+                "details": {
+                    "categories": "imported",
+                    "blocks": "imported", 
+                    "questions": "imported",
+                    "options": "imported",
+                    "soundtracks": "imported"
+                }
+            }
+            
+        except Exception as e:
+            conn.rollback()
+            logger.error(f"❌ Error during import: {e}")
+            raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
+        finally:
+            cursor.close()
+            conn.close()
+            
+    except Exception as e:
+        logger.error(f"❌ Setup endpoint error: {e}")
+        raise HTTPException(status_code=500, detail=f"Setup failed: {str(e)}")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
