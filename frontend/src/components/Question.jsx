@@ -257,7 +257,9 @@ const Question = ({ question, onAnswered }) => {
       }
     } catch (err) {
       console.error('Error submitting vote:', err)
+      console.log('Setting error state with message:', 'An error occurred while voting.')
       setError({ message: 'An error occurred while voting.' })
+      console.log('Error state should now be set')
     } finally {
       // Always hide loading state
       setIsSubmitting(false)
@@ -461,6 +463,7 @@ const Question = ({ question, onAnswered }) => {
 
   // Show error display if there's an error
   if (error) {
+    console.log('Error state detected, showing error display:', error)
     return (
       <div style={styles.errorContainer}>
         <div style={styles.errorTitle}>⚠️ Error</div>
