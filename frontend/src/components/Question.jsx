@@ -134,16 +134,18 @@ const Question = ({ question, onAnswered }) => {
     console.log('Question useEffect triggered for:', question.question_code)
     fetchOptions()
     
-    // Clear any existing cooldown data on page load
-    // This ensures the clock only shows when they try to vote again during cooldown
-    const clearExistingCooldown = () => {
-      const cooldownKey = getVotingCooldownKey(question.question_code)
-      localStorage.removeItem(cooldownKey)
-      setVotingOnCooldown(false)
-      setCooldownTimeRemaining(0)
+    // Check if user is already on cooldown from a previous vote
+    // This is needed to show cooldown message if they refresh the page or return to the question
+    const checkExistingCooldown = () => {
+      const onCooldown = isVotingOnCooldown(question.question_code)
+      if (onCooldown) {
+        setVotingOnCooldown(true)
+        const remaining = getCooldownTimeRemaining(question.question_code)
+        setCooldownTimeRemaining(remaining)
+      }
     }
     
-    clearExistingCooldown()
+    checkExistingCooldown()
     
     // Set up interval to update cooldown countdown only if user is actively on cooldown
     const interval = setInterval(() => {
