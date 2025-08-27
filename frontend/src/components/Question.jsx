@@ -174,8 +174,13 @@ const Question = ({ question, onAnswered }) => {
   }
 
   const handleSingleChoice = async (optionSelect) => {
-    // Check if voting is on cooldown
-    if (votingOnCooldown) {
+    // Check if voting is on cooldown from localStorage
+    const onCooldown = isVotingOnCooldown(question.question_code)
+    if (onCooldown) {
+      // Show the cooldown clock when they try to vote again
+      setVotingOnCooldown(true)
+      const remaining = getCooldownTimeRemaining(question.question_code)
+      setCooldownTimeRemaining(remaining)
       console.log('Voting is on cooldown for question:', question.question_code)
       return
     }
@@ -236,8 +241,13 @@ const Question = ({ question, onAnswered }) => {
   const handleCheckboxSubmit = async () => {
     if (selectedOptions.length === 0) return
 
-    // Check if voting is on cooldown
-    if (votingOnCooldown) {
+    // Check if voting is on cooldown from localStorage
+    const onCooldown = isVotingOnCooldown(question.question_code)
+    if (onCooldown) {
+      // Show the cooldown clock when they try to vote again
+      setVotingOnCooldown(true)
+      const remaining = getCooldownTimeRemaining(question.question_code)
+      setCooldownTimeRemaining(remaining)
       console.log('Voting is on cooldown for question:', question.question_code)
       return
     }
