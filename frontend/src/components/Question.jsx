@@ -584,10 +584,7 @@ const Question = ({ question, onAnswered }) => {
           )}
         </div>
         
-        {/* Playlist Tag - Show if question has playlist */}
-        {questionPlaylist && (
-          <div style={styles.playlistTag}>[playlist:{questionPlaylist}]</div>
-        )}
+        {/* Playlist Tag - Removed to prevent mobile overflow */}
       </div>
       
       {/* Playlist Button - Only show when expanded and has playlist */}
