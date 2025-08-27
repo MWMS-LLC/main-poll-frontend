@@ -491,7 +491,7 @@ const Question = ({ question, onAnswered }) => {
 
   // Extract playlist from question text if it contains [playlist:name]
   const extractPlaylist = (questionText) => {
-    const playlistMatch = questionText.match(/🎵\[playlist:([^\]]+)\]/)
+    const playlistMatch = questionText.match(/\[playlist:([^\]]+)\]/)
     return playlistMatch ? playlistMatch[1] : null
   }
 
