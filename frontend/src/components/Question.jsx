@@ -113,6 +113,28 @@ const Question = ({ question, onAnswered }) => {
       padding: '20px',
       textAlign: 'center',
       color: 'rgba(255, 255, 255, 0.8)'
+    },
+    errorTitle: {
+      fontSize: '20px',
+      fontWeight: 'bold',
+      marginBottom: '10px',
+      color: '#ff6b6b'
+    },
+    errorText: {
+      fontSize: '16px',
+      marginBottom: '20px',
+      color: '#ff6b6b'
+    },
+    clearDataButton: {
+      padding: '10px 20px',
+      background: '#ff6b6b',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      fontSize: '16px',
+      transition: 'background-color 0.3s ease',
+      fontWeight: '500'
     }
   }
 
@@ -129,6 +151,7 @@ const Question = ({ question, onAnswered }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [votingOnCooldown, setVotingOnCooldown] = useState(false)
   const [cooldownTimeRemaining, setCooldownTimeRemaining] = useState(0)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     console.log('Question useEffect triggered for:', question.question_code)
@@ -234,6 +257,7 @@ const Question = ({ question, onAnswered }) => {
       }
     } catch (err) {
       console.error('Error submitting vote:', err)
+      setError({ message: 'An error occurred while voting.' })
     } finally {
       // Always hide loading state
       setIsSubmitting(false)
@@ -326,6 +350,7 @@ const Question = ({ question, onAnswered }) => {
       }
     } catch (err) {
       console.error('Error submitting checkbox vote:', err)
+      setError({ message: 'An error occurred while voting.' })
     } finally {
       // Always hide loading state
       setIsSubmitting(false)
@@ -374,6 +399,7 @@ const Question = ({ question, onAnswered }) => {
       }
     } catch (err) {
       console.error('Error submitting other response:', err)
+      setError({ message: 'An error occurred while submitting your response.' })
     } finally {
       // Always hide loading state
       setIsSubmitting(false)
@@ -402,6 +428,23 @@ const Question = ({ question, onAnswered }) => {
     setSelectedOptions([])
   }
 
+  // Utility function to clear localStorage and start fresh
+  const clearLocalStorageAndRefresh = () => {
+    try {
+      // Clear all localStorage data
+      localStorage.clear()
+      
+      // Show a brief message
+      alert('Data cleared! The page will refresh to start fresh.')
+      
+      // Refresh the page
+      window.location.reload()
+    } catch (error) {
+      console.error('Error clearing localStorage:', error)
+      alert('Error clearing data. Please try refreshing the page manually.')
+    }
+  }
+
   if (loading) return <div style={styles.loadingContainer}>Loading options...</div>
   
   // Safety check for question data
@@ -412,6 +455,22 @@ const Question = ({ question, onAnswered }) => {
         <h3>Error: Invalid question data</h3>
         <p>This question could not be loaded properly.</p>
         <pre>{JSON.stringify(question, null, 2)}</pre>
+      </div>
+    )
+  }
+
+  // Show error display if there's an error
+  if (error) {
+    return (
+      <div style={styles.errorContainer}>
+        <div style={styles.errorTitle}>⚠️ Error</div>
+        <div style={styles.errorText}>{error.message}</div>
+        <button 
+          onClick={() => setError(null)} 
+          style={styles.clearDataButton}
+        >
+          Clear the Error
+        </button>
       </div>
     )
   }

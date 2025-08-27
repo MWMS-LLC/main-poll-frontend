@@ -17,6 +17,23 @@ const HamburgerMenu = () => {
     }
   }
 
+  // Utility function to clear localStorage and start fresh
+  const clearLocalStorageAndRefresh = () => {
+    try {
+      // Clear all localStorage data
+      localStorage.clear()
+      
+      // Show a brief message
+      alert('Data cleared! The page will refresh to start fresh.')
+      
+      // Refresh the page
+      window.location.reload()
+    } catch (error) {
+      console.error('Error clearing localStorage:', error)
+      alert('Error clearing data. Please try refreshing the page manually.')
+    }
+  }
+
   const handleSoundtrackNavigate = () => {
     setOpen(false)
     navigate('/soundtrack')
@@ -70,7 +87,6 @@ const HamburgerMenu = () => {
           >
             Help/Resources
           </button>
-
           
           {/* Theme Song Toggle */}
           <div style={styles.toggleContainer}>

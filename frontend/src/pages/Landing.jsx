@@ -13,15 +13,28 @@ const Landing = () => {
   
   // Fallback UUID generation function for browsers that don't support crypto.randomUUID
   const generateUUID = () => {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-      return crypto.randomUUID()
-    }
-    // Fallback UUID generation
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       const r = Math.random() * 16 | 0
       const v = c === 'x' ? r : (r & 0x3 | 0x8)
       return v.toString(16)
     })
+  }
+
+  // Utility function to clear localStorage and start fresh
+  const clearLocalStorageAndRefresh = () => {
+    try {
+      // Clear all localStorage data
+      localStorage.clear()
+      
+      // Show a brief message
+      alert('Data cleared! The page will refresh to start fresh.')
+      
+      // Refresh the page
+      window.location.reload()
+    } catch (error) {
+      console.error('Error clearing localStorage:', error)
+      alert('Error clearing data. Please try refreshing the page manually.')
+    }
   }
 
   const [categories, setCategories] = useState([])
@@ -280,29 +293,14 @@ const Landing = () => {
             {/* Error Display */}
             {userCreationError && (
               <div style={styles.errorMessage}>
-                <div style={styles.errorTitle}>⚠️ Account Creation Failed</div>
+                <div style={styles.errorTitle}>⚠️ Error</div>
                 <div style={styles.errorText}>{userCreationError}</div>
-                <div style={styles.errorActions}>
-                  <button 
-                    style={styles.retryButton}
-                    onClick={() => {
-                      setUserCreationError('')
-                      setSelectedAge('')
-                      setRetryCount(prev => prev + 1)
-                    }}
-                  >
-                    Try Again {retryCount > 0 && `(${retryCount})`}
-                  </button>
-                  <button 
-                    style={styles.helpButton}
-                    onClick={() => {
-                      // Show help information for real problems
-                      setUserCreationError('Common issues:\n• Check your internet connection\n• Try refreshing the page\n• Make sure you selected an age\n• Contact support if the problem persists')
-                    }}
-                  >
-                    Need Help?
-                  </button>
-                </div>
+                <button 
+                  onClick={clearLocalStorageAndRefresh} 
+                  style={styles.clearDataButton}
+                >
+                  Clear the Error
+                </button>
               </div>
             )}
             
@@ -1018,25 +1016,9 @@ const styles = {
     padding: '0 10px',
     lineHeight: '1.4'
   },
-  errorActions: {
-    display: 'flex',
-    gap: '10px',
-    justifyContent: 'center'
-  },
-  retryButton: {
+  clearDataButton: {
     padding: '8px 15px',
-    backgroundColor: '#4ECDC4',
-    color: 'white',
-    border: 'none',
-    borderRadius: '10px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '600',
-    transition: 'all 0.2s ease'
-  },
-  helpButton: {
-    padding: '8px 15px',
-    backgroundColor: '#95A5A6',
+    backgroundColor: '#FF7675',
     color: 'white',
     border: 'none',
     borderRadius: '10px',
