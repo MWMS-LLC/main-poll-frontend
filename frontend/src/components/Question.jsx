@@ -217,9 +217,9 @@ const Question = ({ question, onAnswered }) => {
       setCompanionAdvice(selectedOption.companion_advice)
       setShowCompanion(false)
 
-      // Set voting cooldown for this question
+      // Set voting cooldown for this question (but don't show clock yet)
       setVotingCooldown(question.question_code)
-      setVotingOnCooldown(true)
+      // Don't set votingOnCooldown to true here - only show clock when they try to vote again
 
       // Notify parent component that question was answered
       if (onAnswered) {
@@ -304,9 +304,9 @@ const Question = ({ question, onAnswered }) => {
       setSelectedOptions([])
       setOtherText('')
 
-      // Set voting cooldown for this question
+      // Set voting cooldown for this question (but don't show clock yet)
       setVotingCooldown(question.question_code)
-      setVotingOnCooldown(true)
+      // Don't set votingOnCooldown to true here - only show clock when they try to vote again
 
       // Notify parent component that question was answered
       if (onAnswered) {
