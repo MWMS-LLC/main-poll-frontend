@@ -10,5 +10,10 @@ uvicorn[standard]==0.22.0
 # Database adapter - pure Python, no binary dependencies
 pg8000==1.29.8
 
+# Data processing
+pandas==2.0.3
+
+
+
 # Environment management
 python-dotenv==1.0.0

@@ -24,11 +24,15 @@ sys.stdout.flush()
 sys.stderr.flush()
 
 # Initialize FastAPI app
-app = FastAPI(title="Teen Poll API", version="1.0.0")
+app = FastAPI(
+    title="My World My Say Main API",
+    description="Main API for myworldmysay.com - Teen Poll System",
+    version="1.0.0"
+)
 
 # Add startup message
-logger.info("🚀 TEEN POLL API STARTING UP - DEBUG LOGGING TEST!")
-print("🚀 TEEN POLL API STARTING UP - PRINT STATEMENT TEST!")
+logger.info("🚀 MY WORLD MY SAY MAIN API STARTING UP!")
+print("🚀 MY WORLD MY SAY MAIN API STARTING UP!")
 
 # CORS middleware
 app.add_middleware(
@@ -42,7 +46,9 @@ app.add_middleware(
         "http://192.168.87.244:5175",
         "https://teen-poll-frontend.onrender.com",
         "https://teen.myworldmysay.com",
-        "https://myworldmysay.com"
+        "https://myworldmysay.com",
+        "https://www.myworldmysay.com",
+        "https://main-poll-frontend.onrender.com"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -91,7 +97,7 @@ class SimpleConnectionPool:
                     self.active_connections += 1
                     try:
                         conn = self._create_connection()
-                        logger.info(f"Created new production connection. Active: {self.active_connections}")
+                        logger.info(f"Created new main site connection. Active: {self.active_connections}")
                         return conn
                     except Exception as e:
                         self.active_connections -= 1
