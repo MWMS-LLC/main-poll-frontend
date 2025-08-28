@@ -10,8 +10,8 @@ uvicorn[standard]==0.22.0
 # Database adapter - pure Python, no binary dependencies
 pg8000==1.29.8
 
-# Data processing - use binary distribution for Render compatibility
-pandas==2.1.4
+# Data processing - use latest version with Python 3.13 wheels
+pandas==2.2.0
 
 
 
