@@ -1,1 +1,11 @@
-/*    /index.html   200
+/category/*    /index.html   200
+/block/*       /index.html   200
+/soundtrack*   /index.html   200
+/faq           /index.html   200
+/help          /index.html   200
+/privacy       /index.html   200
+/contact       /index.html   200
+/too-old       /index.html   200
+/too-young     /index.html   200
+/before-you-begin /index.html 200
+/*             /index.html   200
