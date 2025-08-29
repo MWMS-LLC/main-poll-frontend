@@ -1,3 +1,5 @@
+
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import pg8000
@@ -24,11 +26,15 @@ sys.stdout.flush()
 sys.stderr.flush()
 
 # Initialize FastAPI app
-app = FastAPI(title="Teen Poll API", version="1.0.0")
+app = FastAPI(
+    title="My World My Say Main API",
+    description="Main API for myworldmysay.com - Teen Poll System",
+    version="1.0.0"
+)
 
 # Add startup message
-logger.info("🚀 TEEN POLL API STARTING UP - DEBUG LOGGING TEST!")
-print("🚀 TEEN POLL API STARTING UP - PRINT STATEMENT TEST!")
+logger.info("🚀 MY WORLD MY SAY MAIN API STARTING UP!")
+print("🚀 MY WORLD MY SAY MAIN API STARTING UP!")
 
 # CORS middleware
 app.add_middleware(
@@ -40,9 +46,10 @@ app.add_middleware(
         "http://localhost:5175",
         "http://192.168.87.244:5174",
         "http://192.168.87.244:5175",
-        "https://teen-poll-frontend.onrender.com",
+        "https://main-poll-frontend.onrender.com",
         "https://teen.myworldmysay.com",
-        "https://myworldmysay.com"
+        "https://myworldmysay.com",
+        "https://www.myworldmysay.com"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -91,7 +98,7 @@ class SimpleConnectionPool:
                     self.active_connections += 1
                     try:
                         conn = self._create_connection()
-                        logger.info(f"Created new production connection. Active: {self.active_connections}")
+                        logger.info(f"Created new main site connection. Active: {self.active_connections}")
                         return conn
                     except Exception as e:
                         self.active_connections -= 1
@@ -165,7 +172,7 @@ def execute_query(query: str, params: tuple = None, fetch: bool = True):
 @app.get("/")
 async def root():
     """Root endpoint"""
-    return {"message": "Teen Poll API is running", "status": "ok"}
+    return {"message": "My World My Say Main API is running", "status": "ok"}
 
 @app.get("/health")
 async def health():
@@ -355,10 +362,8 @@ async def vote(vote_data: Dict[str, Any]):
     try:
         logger.info(f"Received vote request: {vote_data}")
         
-        # Gracefully ensure user exists before proceeding with vote
-        # This function is no longer used, so we'll just return an error
-        # if ensure_user_exists is removed.
-        raise HTTPException(status_code=500, detail="User creation is not supported via this endpoint.")
+        # Validate vote data
+        validated_data = validate_vote_request(vote_data)
         
         # Get question and category details for denormalization
         question_query = """
@@ -417,10 +422,8 @@ async def vote(vote_data: Dict[str, Any]):
 async def checkbox_vote(vote_data: Dict[str, Any]):
     """Record a checkbox vote with weights"""
     try:
-        # Gracefully ensure user exists before proceeding with vote
-        # This function is no longer used, so we'll just return an error
-        # if ensure_user_exists is removed.
-        raise HTTPException(status_code=500, detail="User creation is not supported via this endpoint.")
+        # Validate vote data
+        validated_data = validate_checkbox_vote_request(vote_data)
         
         # Get question and category details for denormalization
         question_query = """
@@ -503,10 +506,8 @@ async def checkbox_vote(vote_data: Dict[str, Any]):
 async def submit_other(other_data: Dict[str, Any]):
     """Record a free-text response"""
     try:
-        # Gracefully ensure user exists before proceeding with response
-        # This function is no longer used, so we'll just return an error
-        # if ensure_user_exists is removed.
-        raise HTTPException(status_code=500, detail="User creation is not supported via this endpoint.")
+        # Validate other data
+        validated_data = validate_other_request(other_data)
         
         # Get question and category details for denormalization
         question_query = """

@@ -197,7 +197,7 @@ const Landing = () => {
 
   const handleSocialShare = (platform) => {
     const url = 'https://myworldmysay.com?ref=1ca99aea-8ae1-4c96-aeaa-a'
-    const text = 'Check out this teen poll app - My World My Say!'
+    const text = 'Check out this poll app - My World My Say!'
     
     switch (platform) {
       case 'Discord':

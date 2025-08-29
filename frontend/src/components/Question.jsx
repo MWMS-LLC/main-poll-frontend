@@ -9,8 +9,8 @@ import API_BASE from '../config.js'
 const Question = ({ question, onAnswered }) => {
   // ===== VOTING COOLDOWN CONFIGURATION =====
   // Adjust these values as needed:
-  //const VOTING_COOLDOWN_HOURS = 24  // 24 hours cooldown
-  const VOTING_COOLDOWN_MINUTES = 1  // 1 minute cooldown (commented out)
+  const VOTING_COOLDOWN_HOURS = 24  // 24 hours cooldown
+  //const VOTING_COOLDOWN_MINUTES = 1  // 1 minute cooldown (commented out)
   
   // ===== VOTING COOLDOWN LOGIC =====
   const getVotingCooldownKey = (questionCode) => `voting_cooldown_${questionCode}`
@@ -23,8 +23,8 @@ const Question = ({ question, onAnswered }) => {
     
     const now = new Date().getTime()
     const lastVote = parseInt(lastVoteTime)
-    // const cooldownMs = VOTING_COOLDOWN_HOURS * 60 * 60 * 1000 // Convert hours to milliseconds
-    const cooldownMs = VOTING_COOLDOWN_MINUTES * 60 * 1000 // Convert minutes to milliseconds
+    const cooldownMs = VOTING_COOLDOWN_HOURS * 60 * 60 * 1000 // Convert hours to milliseconds
+    // const cooldownMs = VOTING_COOLDOWN_MINUTES * 60 * 1000 // Convert minutes to milliseconds
     
     return (now - lastVote) < cooldownMs
   }
@@ -42,8 +42,8 @@ const Question = ({ question, onAnswered }) => {
     
     const now = new Date().getTime()
     const lastVote = parseInt(lastVoteTime)
-    // const cooldownMs = VOTING_COOLDOWN_HOURS * 60 * 60 * 1000
-    const cooldownMs = VOTING_COOLDOWN_MINUTES * 60 * 1000 // Convert minutes to milliseconds
+    const cooldownMs = VOTING_COOLDOWN_HOURS * 60 * 60 * 1000
+    // const cooldownMs = VOTING_COOLDOWN_MINUTES * 60 * 1000 // Convert minutes to milliseconds
     
     const timeRemaining = cooldownMs - (now - lastVote)
     return Math.max(0, timeRemaining)
