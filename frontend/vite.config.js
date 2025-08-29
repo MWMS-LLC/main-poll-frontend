@@ -3,12 +3,12 @@ import react from '@vitejs/plugin-react'
 import { copyFileSync, existsSync } from 'fs'
 import { join } from 'path'
 
-// Custom plugin to copy _redirects and _headers files
+// Custom plugin to copy routing files
 const copyFilesPlugin = () => {
   return {
     name: 'copy-files',
     writeBundle() {
-      const files = ['_redirects', '_headers', 'vercel.json', 'netlify.toml']
+      const files = ['_redirects', '_headers', 'vercel.json']
       files.forEach(file => {
         const src = join(__dirname, 'public', file)
         const dest = join(__dirname, 'dist', file)
