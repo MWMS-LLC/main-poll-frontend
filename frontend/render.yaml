@@ -1,44 +1,10 @@
 services:
   - type: web
-    name: teen-poll-frontend
+    name: main-poll-frontend
     env: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     routes:
       - type: rewrite
-        source: /category/*
-        destination: /index.html
-      - type: rewrite
-        source: /block/*
-        destination: /index.html
-      - type: rewrite
-        source: /soundtrack*
-        destination: /index.html
-      - type: rewrite
-        source: /faq
-        destination: /index.html
-      - type: rewrite
-        source: /help
-        destination: /index.html
-      - type: rewrite
-        source: /privacy
-        destination: /index.html
-      - type: rewrite
-        source: /contact
-        destination: /index.html
-      - type: rewrite
-        source: /too-old
-        destination: /index.html
-      - type: rewrite
-        source: /too-young
-        destination: /index.html
-      - type: rewrite
-        source: /before-you-begin
-        destination: /index.html
-      - type: rewrite
         source: /*
         destination: /index.html
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: no-cache, no-store, must-revalidate
