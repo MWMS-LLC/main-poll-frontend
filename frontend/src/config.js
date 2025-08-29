@@ -2,7 +2,7 @@
 // Change this based on your environment
 
 // For production deployment (update with your actual backend URL)
-const PRODUCTION_API = 'https://teen-poll-backend.onrender.com'
+const PRODUCTION_API = 'https://main-poll-backend.onrender.com'
 
 // For local development
 const LOCAL_API = 'http://localhost:8000'
