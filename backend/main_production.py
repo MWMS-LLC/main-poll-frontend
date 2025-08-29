@@ -1,3 +1,5 @@
+
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import pg8000
@@ -44,11 +46,10 @@ app.add_middleware(
         "http://localhost:5175",
         "http://192.168.87.244:5174",
         "http://192.168.87.244:5175",
-        "https://teen-poll-frontend.onrender.com",
+        "https://main-poll-frontend.onrender.com",
         "https://teen.myworldmysay.com",
         "https://myworldmysay.com",
-        "https://www.myworldmysay.com",
-        "https://main-poll-frontend.onrender.com"
+        "https://www.myworldmysay.com"
     ],
     allow_credentials=True,
     allow_methods=["*"],
