@@ -652,16 +652,6 @@ const Question = ({ question, onAnswered }) => {
 
       {question.check_box && !showResults && selectedOptions.length > 0 && (
         <div style={{ marginTop: '15px' }}>
-          {question.max_select && question.max_select > 1 && (
-            <div style={{ 
-              marginBottom: '10px', 
-              fontSize: '14px', 
-              color: '#666',
-              textAlign: 'center'
-            }}>
-              {selectedOptions.length}/{question.max_select} options selected
-            </div>
-          )}
           <button
             onClick={handleCheckboxSubmit}
             disabled={isSubmitting || votingOnCooldown}
