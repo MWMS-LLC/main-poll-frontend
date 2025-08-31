@@ -57,6 +57,19 @@ const BeforeYouBegin = () => {
             Or, in an emergency, please call 911 or talk to a trusted adult.
           </p>
         </div>
+
+        <div style={styles.section}>
+          <h2 style={styles.sectionTitle}>User-Submitted Text Responses</h2>
+          <p style={styles.overwhelmedText}>
+            Some parts of this app allow users to submit short, free-form responses (e.g., "Other" options). These entries are not monitored, moderated, or reviewed in real time, and are not intended for communication of sensitive, personal, or emergency-related information.
+          </p>
+          <p style={styles.overwhelmedText}>
+            By using this app, you understand and agree that we are not responsible for reviewing, acting upon, or responding to any user-submitted text.
+          </p>
+          <p style={styles.emergencyText}>
+            If you are in danger or need help, please contact a trusted adult, counselor, or crisis resource immediately. This app does not provide medical, psychological, or emergency support.
+          </p>
+        </div>
       </div>
 
       {/* Back Button */}
