@@ -140,7 +140,7 @@ const OptionsList = ({
                   <textarea
                     value={otherText || ''}
                     onChange={(e) => setOtherText(e.target.value)}
-                    placeholder="Not reviewed — don't use this for anything urgent or unsafe."
+                    placeholder="We may not see this in time, so please don't use it for anything urgent."
                     style={{
                       width: '100%',
                       minHeight: '80px',
