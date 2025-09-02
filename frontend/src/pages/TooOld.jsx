@@ -71,10 +71,10 @@ const TooOld = () => {
           </p>
           
           <div style={styles.comingSoon}>
-            <p style={styles.comingSoonTitle}>Coming soon:</p>
-            <ul style={styles.featureList}>
-              <li style={styles.featureListItem}><em>schools.myworldmysay.com</em></li>
-            </ul>
+            <p style={styles.comingSoonTitle}>Please contact us at</p>
+            <p style={styles.contactEmail}>
+              <a href="mailto:info@MyWorldMySay.com" style={styles.emailLink}>info@MyWorldMySay.com</a>
+            </p>
           </div>
 
           <p style={styles.noteText}>
@@ -276,6 +276,20 @@ const styles = {
     marginTop: '25px',
     color: 'rgba(255, 255, 255, 0.7)',
     fontStyle: 'italic'
+  },
+  
+  contactEmail: {
+    fontSize: '18px',
+    color: 'rgba(255, 255, 255, 0.9)',
+    margin: '10px 0 0 0',
+    textAlign: 'center'
+  },
+  
+  emailLink: {
+    color: '#FFD93D',
+    textDecoration: 'none',
+    fontWeight: '600',
+    fontSize: '20px'
   }
 }
 
