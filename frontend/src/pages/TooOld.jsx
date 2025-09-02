@@ -69,7 +69,13 @@ const TooOld = () => {
           <p style={styles.sectionText}>
             If your school is interested, please reach out. We are happy to collaborate with counselors, club advisors, or teachers to involve students in a safe and meaningful way.
           </p>
-          <p style={styles.sectionText}>schools.myworldmysay.com</p>
+          
+          <div style={styles.comingSoon}>
+            <p style={styles.comingSoonTitle}>Coming soon:</p>
+            <ul style={styles.featureList}>
+              <li style={styles.featureListItem}><em>schools.myworldmysay.com</em></li>
+            </ul>
+          </div>
 
           <p style={styles.noteText}>
             Note: This page is for school administrators, counselors, educators, and parents. Teens using the app will continue to engage anonymously and safely inside the app environment.
