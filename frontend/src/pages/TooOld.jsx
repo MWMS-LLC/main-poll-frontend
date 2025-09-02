@@ -34,6 +34,29 @@ const TooOld = () => {
           </div>
         </div>
 
+        {/* For Schools Section */}
+        <div style={styles.section}>
+          <h2 style={styles.sectionTitle}>For Schools</h2>
+          <p style={styles.sectionText}>
+            Teen mental health is increasingly visible, but support varies across school districts. A <a href="https://news.harvard.edu/gazette/story/2025/08/public-schools-a-weak-link-in-efforts-to-protect-teen-mental-health-study-suggests/" target="_blank" rel="noopener noreferrer" style={styles.link}>2025 Harvard Medical School study</a> indicates only 30% of U.S. public schools screen students for mental health issues, with even fewer offering in-school mental health care or telehealth.
+          </p>
+          <p style={styles.sectionText}>
+            The need is critical: teens face stress, social media pressure, identity struggles, and often feel isolated. Surveys and screenings are important but can be expensive, limiting their frequency.
+          </p>
+          <p style={styles.sectionText}>
+            This platform is a <strong>free emotional reflection tool</strong> that complements school efforts, providing a safe way for students to express their feelings, rather than replacing clinical care.
+          </p>
+          <div style={styles.comingSoon}>
+            <p style={styles.comingSoonTitle}>Coming soon:</p>
+            <ul style={styles.featureList}>
+              <li style={styles.featureListItem}>Thoughtful input from real teens on wording, tone, and visuals</li>
+              <li style={styles.featureListItem}>Anonymous format that allows students to open up and feel less alone</li>
+              <li style={styles.featureListItem}>Support for schools adopting more consistent listening practices</li>
+              <li style={styles.featureListItem}><em>schools.myworldmysay.com</em></li>
+            </ul>
+          </div>
+        </div>
+
         {/* For Other Grown-Ups Section */}
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>For Other Grown-Ups</h2>
@@ -206,6 +229,12 @@ const styles = {
     fontWeight: '500',
     transition: 'all 0.3s ease',
     backdropFilter: 'blur(10px)'
+  },
+  
+  link: {
+    color: '#4ECDC4',
+    textDecoration: 'underline',
+    fontWeight: '500'
   }
 }
 

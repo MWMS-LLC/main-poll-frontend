@@ -101,7 +101,7 @@ const Landing = () => {
     triggerThemeSong()
     
     let birthYear
-    if (selectedAge === 'before2007') {
+    if (selectedAge === 'before2005') {
       navigate('/too-old')
       return
     } else if (selectedAge === 'after2012') {
@@ -109,7 +109,7 @@ const Landing = () => {
       return
     } else {
       birthYear = parseInt(selectedAge)
-      if (birthYear < 2007 || birthYear > 2012) {
+      if (birthYear < 2005 || birthYear > 2012) {
         navigate('/too-old')
         return
     }
@@ -311,7 +311,9 @@ const Landing = () => {
               disabled={isCreatingUser}
             >
               <option value="">Year of Birth</option>
-              <option value="before2007">Before 2007</option>
+              <option value="before2005">Before 2005</option>
+              <option value="2005">2005</option>
+              <option value="2006">2006</option>
               <option value="2007">2007</option>
               <option value="2008">2008</option>
               <option value="2009">2009</option>
