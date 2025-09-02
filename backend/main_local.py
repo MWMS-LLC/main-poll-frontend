@@ -311,10 +311,10 @@ async def create_user(user: Dict[str, Any]):
         validated_data = validate_user_request(user)
         logger.info(f"Validation passed: {validated_data}")
         
-        # Validate age (2007-2012)
-        if validated_data['year_of_birth'] < 2007 or validated_data['year_of_birth'] > 2012:
+        # Validate age (2005-2012)
+        if validated_data['year_of_birth'] < 2005 or validated_data['year_of_birth'] > 2012:
             logger.warning(f"Age validation failed: {validated_data['year_of_birth']}")
-            raise HTTPException(status_code=400, detail="Invalid year of birth. Must be between 2007-2012.")
+            raise HTTPException(status_code=400, detail="Invalid year of birth. Must be between 2005-2012.")
         
         logger.info("Age validation passed, inserting user into database")
         query = """
