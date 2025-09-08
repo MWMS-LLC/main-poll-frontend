@@ -250,7 +250,7 @@ async def test():
 
 @app.get("/api/categories")
 async def get_categories():
-    """Get all categories - Updated to use new database schema"""
+    """Get all categories - Updated to use correct database with 14 categories"""
     print("🔍 PRINT: Categories endpoint called!")
     logger.info("🔍 LOG: Categories endpoint called!")
     
