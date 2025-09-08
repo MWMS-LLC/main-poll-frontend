@@ -264,21 +264,22 @@ const Landing = () => {
     }
   }
 
-  // Beautiful, subtle category gradients - more neutral and appealing to everyone
+  // Bold, vibrant category gradients - more masculine and powerful
   const categoryGradients = {
-    1: { gradient: "linear-gradient(135deg, #DD6B20 0%, #C05621 100%)", emoji: "" }, // Love
-    2: { gradient: "linear-gradient(135deg, #C53030 0%, #9B2C2C 100%)", emoji: "" }, // Friends
-    3: { gradient: "linear-gradient(135deg, #319795 0%, #2C7A7B 100%)", emoji: "" }, // Social_Media
-    4: { gradient: "linear-gradient(135deg, #805AD5 0%, #6B46C1 100%)", emoji: "" }, // Pinky
-    5: { gradient: "linear-gradient(135deg, #3182CE 0%, #2C5282 100%)", emoji: "" }, // Lowkey
-    6: { gradient: "linear-gradient(135deg, #38A169 0%, #2F855A 100%)", emoji: "" }, // Personal
-    7: { gradient: "linear-gradient(135deg, #D69E2E 0%, #B7791F 100%)", emoji: "" }, // Healing
-    8: { gradient: "linear-gradient(135deg, #805AD5 0%, #6B46C1 100%)", emoji: "" }, // Defense
-    9: { gradient: "linear-gradient(135deg, #E53E3E 0%, #C53030 100%)", emoji: "" }, // Family
-    10: { gradient: "linear-gradient(135deg, #5A67D8 0%, #4C51BF 100%)", emoji: "" }, // Dream Era
-    11: { gradient: "linear-gradient(135deg, #319795 0%, #2C7A7B 100%)", emoji: "" }, // School
-    12: { gradient: "linear-gradient(135deg, #ED8936 0%, #DD6B20 100%)", emoji: "" }, // Fun Stuff - Orange
-    13: { gradient: "linear-gradient(135deg, #E53E3E 0%, #C53030 100%)", emoji: "" }, // Chaos - Red
+    1: { gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", emoji: "" }, // 1st_Thing_1st - Keep purple
+    2: { gradient: "linear-gradient(135deg, #FF6B35 0%, #D63031 100%)", emoji: "" }, // Love - Bold red-orange
+    3: { gradient: "linear-gradient(135deg, #E53E3E 0%, #C53030 100%)", emoji: "" }, // Friends - Deep red
+    4: { gradient: "linear-gradient(135deg, #00B4D8 0%, #0077B6 100%)", emoji: "" }, // Online_Life - Bold blue
+    5: { gradient: "linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)", emoji: "" }, // Pinky - Bold purple
+    6: { gradient: "linear-gradient(135deg, #1E40AF 0%, #1E3A8A 100%)", emoji: "" }, // Lowkey - Deep blue
+    7: { gradient: "linear-gradient(135deg, #059669 0%, #047857 100%)", emoji: "" }, // Personal - Deep green
+    8: { gradient: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)", emoji: "" }, // Healing - Bold amber
+    9: { gradient: "linear-gradient(135deg, #7C2D12 0%, #991B1B 100%)", emoji: "" }, // Defense - Dark red
+    10: { gradient: "linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)", emoji: "" }, // Family - Bold red
+    11: { gradient: "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)", emoji: "" }, // Future - Bold blue
+    12: { gradient: "linear-gradient(135deg, #0891B2 0%, #0E7490 100%)", emoji: "" }, // School - Bold cyan
+    13: { gradient: "linear-gradient(135deg, #EA580C 0%, #C2410C 100%)", emoji: "" }, // Fun_Stuff - Bold orange
+    14: { gradient: "linear-gradient(135deg, #7F1D1D 0%, #991B1B 100%)", emoji: "" }, // Chaos - Dark red
   }
   const getCategoryStyle = (categoryId) => {
     const style = categoryGradients[categoryId] || { 
@@ -621,9 +622,10 @@ const Landing = () => {
                       opacity: 1,
                       cursor: 'pointer'
                     } : {
-                      background: 'linear-gradient(135deg, #666 0%, #444 100%)',
-                      opacity: 0.4,
-                      cursor: 'help'
+                      background: categoryStyle.gradient,
+                      opacity: 1,
+                      cursor: 'help',
+                      position: 'relative'
                     }),
                     animationDelay: `${index * 0.1}s`
                   }}
@@ -631,10 +633,16 @@ const Landing = () => {
                   className={isActive ? "bubble-hover" : ""}
                 >
                   <div style={styles.bubbleEmoji}>{categoryStyle.emoji}</div>
-                  <div style={styles.bubbleText}>
+                  <div style={{
+                    ...styles.bubbleText,
+                    color: !isActive ? '#666666' : styles.bubbleText.color
+                  }}>
                     {formatCategoryName(category.category_name)}
                     {!isActive && dayOfWeekArray && (
-                      <div style={styles.inactiveIndicator}>
+                      <div style={{
+                        ...styles.inactiveIndicator,
+                        color: '#666666'
+                      }}>
                         (Available {dayOfWeekArray.map(day => dayNames[day].slice(0, 3)).join(', ')})
                       </div>
                     )}
