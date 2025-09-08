@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import { useAudio } from '../contexts/AudioContext.jsx'
 import HamburgerMenu from '../components/HamburgerMenu.jsx'
 import Footer from '../components/Footer.jsx'
@@ -10,45 +10,41 @@ const soundtrackService = new SoundtrackService()
 const Soundtrack = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const location = useLocation()
 
   const [selectedPlaylist, setSelectedPlaylist] = useState('All Songs')
   const [showLyrics, setShowLyrics] = useState(null)
   const [favorites, setFavorites] = useState(new Set(['LRDD_01']))
   
-  // Smart back navigation - detect where user came from
+  // Clean back navigation logic
   const getBackNavigation = () => {
-    const playlistParam = searchParams.get('playlist')
+    const state = location.state
     const referrer = document.referrer
     
-    // If there's a playlist parameter, user likely came from category or question page
-    if (playlistParam) {
-      // Check if referrer contains category or block path
-      if (referrer.includes('/category/')) {
-        // Extract category ID from referrer
-        const categoryMatch = referrer.match(/\/category\/([^\/\?]+)/)
-        if (categoryMatch) {
-          return { path: `/category/${categoryMatch[1]}`, label: 'Back to Category' }
-        }
-      } else if (referrer.includes('/block/')) {
-        // Extract block code from referrer
-        const blockMatch = referrer.match(/\/block\/([^\/\?]+)/)
-        if (blockMatch) {
-          return { path: `/block/${blockMatch[1]}`, label: 'Back to Questions' }
-        }
-      }
-      // Default to category if we can't determine specific page
-      return { path: '/', label: 'Back to Home' }
-    }
-    
-    // No playlist parameter - user came from block page or hamburger menu
-    if (referrer.includes('/block/')) {
-      const blockMatch = referrer.match(/\/block\/([^\/\?]+)/)
-      if (blockMatch) {
-        return { path: `/block/${blockMatch[1]}`, label: 'Back to Questions' }
+    // Priority 1: Use React Router state if available
+    if (state?.from) {
+      const isCategory = state.from.includes('/category/')
+      const isBlock = state.from.includes('/block/')
+      
+      return {
+        path: state.from,
+        label: isCategory ? 'Back to Category' : isBlock ? 'Back to Questions' : 'Back'
       }
     }
     
-    // Default fallback
+    // Priority 2: Extract from referrer URL
+    const categoryMatch = referrer.match(/\/category\/([^\/\?]+)/)
+    const blockMatch = referrer.match(/\/block\/([^\/\?]+)/)
+    
+    if (categoryMatch) {
+      return { path: `/category/${categoryMatch[1]}`, label: 'Back to Category' }
+    }
+    
+    if (blockMatch) {
+      return { path: `/block/${blockMatch[1]}`, label: 'Back to Questions' }
+    }
+    
+    // Fallback: Home page
     return { path: '/', label: 'Back to Home' }
   }
   

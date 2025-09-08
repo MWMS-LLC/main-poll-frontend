@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import HamburgerMenu from '../components/HamburgerMenu'
 import Footer from '../components/Footer.jsx'
@@ -14,6 +14,7 @@ const Category = () => {
   const [expandedBlock, setExpandedBlock] = useState(null)
   const { categoryId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   
   // Use global audio context for theme song auto-play
   const { autoPlayThemeSong } = useAudio()
@@ -77,8 +78,10 @@ const Category = () => {
   }
 
   const handlePlaylistClick = (block) => {
-    // Navigate to soundtrack page with playlist parameter
-    navigate(`/soundtrack?playlist=${encodeURIComponent(block.playlist)}`)
+    // Navigate to soundtrack page with playlist parameter and current location as state
+    navigate(`/soundtrack?playlist=${encodeURIComponent(block.playlist)}`, {
+      state: { from: location.pathname }
+    })
   }
 
   if (loading) {

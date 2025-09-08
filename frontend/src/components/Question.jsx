@@ -503,7 +503,9 @@ const Question = ({ question, onAnswered }) => {
   const handlePlaylistClick = () => {
     const playlist = extractPlaylist(question.question_text)
     if (playlist) {
-      navigate(`/soundtrack?playlist=${encodeURIComponent(playlist)}`)
+      navigate(`/soundtrack?playlist=${encodeURIComponent(playlist)}`, {
+        state: { from: window.location.pathname }
+      })
     }
   }
 
