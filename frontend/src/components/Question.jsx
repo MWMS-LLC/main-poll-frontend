@@ -77,7 +77,7 @@ const Question = ({ question, onAnswered }) => {
     questionHeaderContent: {
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      gap: '12px',
       width: '100%'
     },
     questionTitle: {
@@ -567,10 +567,6 @@ const Question = ({ question, onAnswered }) => {
         background: question.color_code ? `linear-gradient(135deg, ${question.color_code} 0%, ${question.color_code}CC 100%)` : 'linear-gradient(135deg, #4A5568 0%, #2D3748 100%)'
       }}>
         <div style={styles.questionHeaderContent}>
-          <h3 style={styles.questionTitle}>
-            {question.question_text || 'Question loading...'}
-          </h3>
-          
           {/* Playlist Toggle Button - Only show if question has playlist */}
           {questionPlaylist && (
             <button
@@ -582,6 +578,10 @@ const Question = ({ question, onAnswered }) => {
               🎵
             </button>
           )}
+          
+          <h3 style={styles.questionTitle}>
+            {question.question_text || 'Question loading...'}
+          </h3>
         </div>
         
         {/* Playlist Tag - Removed to prevent mobile overflow */}

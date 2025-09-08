@@ -131,13 +131,6 @@ const Category = () => {
                 onClick={() => handleBlockClick(block)}
                 className="block-hover"
               >
-                <div style={styles.blockContent}>
-                  <div style={styles.blockTitle}>{block.block_text}</div>
-                  {block.playlist && (
-                    <div style={styles.playlistTag}>[playlist:{block.playlist}]</div>
-                  )}
-                </div>
-                
                 {/* Playlist Toggle Button - Only show if block has playlist */}
                 {block.playlist && (
                   <button
@@ -149,6 +142,13 @@ const Category = () => {
                     🎵
                   </button>
                 )}
+                
+                <div style={styles.blockContent}>
+                  <div style={styles.blockTitle}>{block.block_text}</div>
+                  {block.playlist && (
+                    <div style={styles.playlistTag}>[playlist:{block.playlist}]</div>
+                  )}
+                </div>
               </div>
               
               {/* Playlist Button - Only show when expanded and has playlist */}
@@ -324,6 +324,7 @@ const styles = {
     minHeight: '120px',
     display: 'flex',
     alignItems: 'center',
+    gap: '12px',
     background: 'transparent'
   },
   
