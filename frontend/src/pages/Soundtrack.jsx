@@ -15,6 +15,45 @@ const Soundtrack = () => {
   const [showLyrics, setShowLyrics] = useState(null)
   const [favorites, setFavorites] = useState(new Set(['LRDD_01']))
   
+  // Smart back navigation - detect where user came from
+  const getBackNavigation = () => {
+    const playlistParam = searchParams.get('playlist')
+    const referrer = document.referrer
+    
+    // If there's a playlist parameter, user likely came from category or question page
+    if (playlistParam) {
+      // Check if referrer contains category or block path
+      if (referrer.includes('/category/')) {
+        // Extract category ID from referrer
+        const categoryMatch = referrer.match(/\/category\/([^\/\?]+)/)
+        if (categoryMatch) {
+          return { path: `/category/${categoryMatch[1]}`, label: 'Back to Category' }
+        }
+      } else if (referrer.includes('/block/')) {
+        // Extract block code from referrer
+        const blockMatch = referrer.match(/\/block\/([^\/\?]+)/)
+        if (blockMatch) {
+          return { path: `/block/${blockMatch[1]}`, label: 'Back to Questions' }
+        }
+      }
+      // Default to category if we can't determine specific page
+      return { path: '/', label: 'Back to Home' }
+    }
+    
+    // No playlist parameter - user came from block page or hamburger menu
+    if (referrer.includes('/block/')) {
+      const blockMatch = referrer.match(/\/block\/([^\/\?]+)/)
+      if (blockMatch) {
+        return { path: `/block/${blockMatch[1]}`, label: 'Back to Questions' }
+      }
+    }
+    
+    // Default fallback
+    return { path: '/', label: 'Back to Home' }
+  }
+  
+  const backNavigation = getBackNavigation()
+  
   // Use the persistent audio context
   const { 
     audioRef, 
@@ -130,8 +169,8 @@ const Soundtrack = () => {
       
       {/* Header Section */}
       <div style={styles.headerSection}>
-        <div style={styles.backButton} onClick={() => navigate('/')}>
-          ← Back
+        <div style={styles.backButton} onClick={() => navigate(backNavigation.path)}>
+          ← {backNavigation.label}
         </div>
         <h1 style={styles.pageTitle}>
           {selectedPlaylist === 'All Songs' ? 'All Songs' : `${formatPlaylistName(selectedPlaylist)} Playlist`}
