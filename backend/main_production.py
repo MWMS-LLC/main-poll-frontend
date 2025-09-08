@@ -69,6 +69,8 @@ class SimpleConnectionPool:
         """Create a new database connection"""
         if not self.db_params:
             database_url = os.getenv("DATABASE_URL")
+            print(f"🔍 DEBUG: DATABASE_URL = {database_url}")
+            logger.info(f"🔍 DEBUG: DATABASE_URL = {database_url}")
             if not database_url:
                 raise Exception("DATABASE_URL environment variable is not set!")
             
