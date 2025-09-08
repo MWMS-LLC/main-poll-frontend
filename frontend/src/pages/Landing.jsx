@@ -46,6 +46,41 @@ const Landing = () => {
   const [userCreationError, setUserCreationError] = useState('')
   const [isCreatingUser, setIsCreatingUser] = useState(false)
   const [retryCount, setRetryCount] = useState(0)
+  
+  // Get current day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+  const getCurrentDayOfWeek = () => {
+    return new Date().getDay()
+  }
+  
+  // Parse PostgreSQL array format like "{0,1,2,3,4,5,6}" to JavaScript array
+  const parseDayOfWeek = (dayOfWeekStr) => {
+    if (!dayOfWeekStr) return null
+    
+    // Handle PostgreSQL array format: "{0,1,2,3,4,5,6}"
+    if (typeof dayOfWeekStr === 'string' && dayOfWeekStr.startsWith('{') && dayOfWeekStr.endsWith('}')) {
+      const content = dayOfWeekStr.slice(1, -1) // Remove { and }
+      return content.split(',').map(day => parseInt(day.trim()))
+    }
+    
+    // Handle already parsed array
+    if (Array.isArray(dayOfWeekStr)) {
+      return dayOfWeekStr
+    }
+    
+    return null
+  }
+  
+  // Check if category should be active today
+  const isCategoryActiveToday = (category) => {
+    const dayOfWeekArray = parseDayOfWeek(category.day_of_week)
+    
+    if (!dayOfWeekArray || dayOfWeekArray.length === 0) {
+      // If no day_of_week specified, always show
+      return true
+    }
+    
+    return dayOfWeekArray.includes(getCurrentDayOfWeek())
+  }
 
   const [showSharing, setShowSharing] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
@@ -564,30 +599,46 @@ const Landing = () => {
         <div style={styles.bubblesGrid}>
           {categories.map((category, index) => {
             const categoryStyle = getCategoryStyle(category.id)
-            // Debug logging
-            console.log('Category data:', { 
-              id: category.id, 
-              name: category.category_name, 
-              text: category.category_text,
-              description: category.description
-            })
+            const isActive = isCategoryActiveToday(category)
+            const dayOfWeekArray = parseDayOfWeek(category.day_of_week)
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            
             return (
               <Tooltip 
                 key={category.id}
-                content={category.category_text || category.description}
+                content={
+                  dayOfWeekArray && dayOfWeekArray.length > 0
+                    ? `${category.category_text || category.description}\n\nAvailable: ${dayOfWeekArray.map(day => dayNames[day]).join(', ')}`
+                    : (category.category_text || category.description)
+                }
                 position="top"
               >
                 <button
                   style={{
                     ...styles.bubble,
-                    background: categoryStyle.gradient,
+                    ...(isActive ? {
+                      background: categoryStyle.gradient,
+                      opacity: 1,
+                      cursor: 'pointer'
+                    } : {
+                      background: 'linear-gradient(135deg, #666 0%, #444 100%)',
+                      opacity: 0.4,
+                      cursor: 'help'
+                    }),
                     animationDelay: `${index * 0.1}s`
                   }}
-                  onClick={() => handleCategoryClick(category)}
-                  className="bubble-hover"
+                  onClick={() => isActive && handleCategoryClick(category)}
+                  className={isActive ? "bubble-hover" : ""}
                 >
                   <div style={styles.bubbleEmoji}>{categoryStyle.emoji}</div>
-                  <div style={styles.bubbleText}>{formatCategoryName(category.category_name)}</div>
+                  <div style={styles.bubbleText}>
+                    {formatCategoryName(category.category_name)}
+                    {!isActive && dayOfWeekArray && (
+                      <div style={styles.inactiveIndicator}>
+                        (Available {dayOfWeekArray.map(day => dayNames[day].slice(0, 3)).join(', ')})
+                      </div>
+                    )}
+                  </div>
                 </button>
               </Tooltip>
             )
@@ -1003,6 +1054,13 @@ const styles = {
     WebkitUserSelect: 'none',
     MozUserSelect: 'none',
     msUserSelect: 'none'
+  },
+  
+  inactiveIndicator: {
+    fontSize: '12px',
+    opacity: 0.7,
+    marginTop: '4px',
+    fontStyle: 'italic'
   },
   errorTitle: {
     fontSize: '18px',
