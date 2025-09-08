@@ -72,6 +72,11 @@ const Landing = () => {
   
   // Check if category should be active today
   const isCategoryActiveToday = (category) => {
+    // If day_of_week is not available yet (old API), always show as active
+    if (!category.day_of_week) {
+      return true
+    }
+    
     const dayOfWeekArray = parseDayOfWeek(category.day_of_week)
     
     if (!dayOfWeekArray || dayOfWeekArray.length === 0) {
@@ -609,8 +614,8 @@ const Landing = () => {
                 key={category.id}
                 content={
                   dayOfWeekArray && dayOfWeekArray.length > 0
-                    ? `${category.category_text || category.description}\n\nAvailable: ${dayOfWeekArray.map(day => dayNames[day]).join(', ')}`
-                    : (category.category_text || category.description)
+                    ? `${category.category_text || category.description || 'Category'}\n\nAvailable: ${dayOfWeekArray.map(day => dayNames[day]).join(', ')}`
+                    : (category.category_text || category.description || 'Category')
                 }
                 position="top"
               >
