@@ -1,60 +1,20 @@
 
-
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-import pg8000
-import logging
-from datetime import datetime
-from typing import List, Dict, Any, Optional
 import os
-from urllib.parse import urlparse
-import threading
 import queue
+import threading
+import logging
+import ssl
 from contextlib import contextmanager
+from typing import Dict, Any
+from fastapi import FastAPI, HTTPException
+from datetime import datetime
+import pg8000
 
-# Configure logging - force it to be very verbose
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    force=True
-)
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Force print statements to flush immediately
-import sys
-sys.stdout.flush()
-sys.stderr.flush()
-
-# Initialize FastAPI app
-app = FastAPI(
-    title="My World My Say Teen API",
-    description="Teen API for teen.myworldmysay.com - Teen Poll System",
-    version="1.0.0"
-)
-
-# Add startup message
-logger.info("🚀 MY WORLD MY SAY TEEN API STARTING UP!")
-print("🚀 MY WORLD MY SAY TEEN API STARTING UP!")
-
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:5175",
-        "http://192.168.87.244:5174",
-        "http://192.168.87.244:5175",
-        "https://myworld-teen-front.s3-website.us-east-2.amazonaws.com",
-        "https://teen.myworldmysay.com",
-        "https://myworldmysay.com",
-        "https://www.myworldmysay.com"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = FastAPI()
 
 # Simple connection pool using pg8000
 class SimpleConnectionPool:
@@ -81,13 +41,18 @@ class SimpleConnectionPool:
             if not all([host, database, user, password]):
                 raise Exception("Database environment variables are not set!")
             
+            # Create SSL context for AWS RDS
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            
             self.db_params = {
                 'host': host,
                 'port': port,
                 'database': database,
                 'user': user,
                 'password': password,
-                'ssl_context': True
+                'ssl_context': ssl_context
             }
             logger.info(f"Database params initialized for host: {self.db_params['host']}")
         
@@ -182,9 +147,41 @@ async def root():
     return {"message": "My World My Say Main API is running", "status": "ok"}
 
 @app.get("/health")
-async def health():
-    """Health check endpoint that doesn't require database"""
-    return {"status": "healthy", "timestamp": str(datetime.now())}
+def health():
+    return {"status": "ok"}
+
+@app.get("/db-check")
+def db_check():
+    """Test database connectivity without crashing on startup"""
+    try:
+        # Get database connection parameters
+        host = os.getenv("DB_HOST")
+        port = int(os.getenv("DB_PORT", "5432"))
+        database = os.getenv("DB_NAME")
+        user = os.getenv("DB_USER")
+        password = os.getenv("DB_PASSWORD")
+        
+        if not all([host, database, user, password]):
+            return {"error": "Database environment variables not set", "status": "error"}
+        
+        # Test connection with SSL context
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        
+        conn = pg8000.connect(
+            host=host,
+            port=port,
+            database=database,
+            user=user,
+            password=password,
+            ssl_context=ssl_context
+        )
+        conn.close()
+        return {"db": "connected", "status": "ok"}
+        
+    except Exception as e:
+        return {"error": f"Database connection failed: {str(e)}", "status": "error"}
 
 @app.on_event("startup")
 async def startup_event():
@@ -845,4 +842,5 @@ async def setup_database():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    port = int(os.getenv("PORT", "8080"))
+    uvicorn.run(app, host="0.0.0.0", port=port)

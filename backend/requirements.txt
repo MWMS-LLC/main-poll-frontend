@@ -1,19 +1,15 @@
-# 🚀 Python 3.13 Compatible Requirements (Pure Python Only!)
-# These packages have NO binary dependencies and work with Python 3.13!
+# AWS App Runner Compatible Requirements
+# Core web framework
+fastapi==0.104.1
 
-# Core web framework - pure Python
-fastapi==0.95.2
-
-# ASGI server - pure Python
-uvicorn[standard]==0.22.0
+# ASGI server
+uvicorn[standard]==0.24.0
 
 # Database adapter - pure Python, no binary dependencies
-pg8000==1.29.8
-
-# Data processing - removed pandas (not needed for main backend)
-# pandas==2.2.0
-
-
+pg8000==1.30.3
 
 # Environment management
 python-dotenv==1.0.0
+
+# Additional dependencies for production
+gunicorn==21.2.0
