@@ -6,11 +6,15 @@ const Tooltip = ({ content, children, position = 'top' }) => {
   // Debug logging
   console.log('Tooltip render:', { content, position, isVisible })
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     console.log('Mouse enter, content:', content)
     setIsVisible(true)
   }
-  const handleMouseLeave = () => {
+  const handleMouseLeave = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     console.log('Mouse leave')
     setIsVisible(false)
   }

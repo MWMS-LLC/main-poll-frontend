@@ -2,10 +2,6 @@ import psycopg2
 import csv
 import os
 from datetime import datetime
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
 
 def clean_csv_value(value):
     """Clean CSV values and handle multi-line content"""
@@ -19,44 +15,49 @@ def clean_csv_value(value):
     return value
 
 def import_setup_data():
-    """Import CSV data into PostgreSQL database"""
+    """Import CSV data into AWS RDS PostgreSQL database"""
     
-    # Database connection
-    DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres@localhost:5432/teen_poll')
-    
+    # AWS RDS Connection
     try:
-        # Connect to PostgreSQL
-        conn = psycopg2.connect(DATABASE_URL)
+        conn = psycopg2.connect(
+            host="database-1.c320aqgmywbc.us-east-2.rds.amazonaws.com",
+            port="5432",
+            database="postgres",
+            user="postgres",
+            password="NBem0YTOfN94yKqFSw5F",
+            connect_timeout=10
+        )
         cursor = conn.cursor()
         
-        print("✅ Connected to PostgreSQL database")
-        
-        # Read and execute fresh schema
-        print("📋 Setting up fresh database schema...")
-        
-        # Execute setup schema only
-        with open('schema_setup.sql', 'r') as f:
-            setup_schema = f.read()
-        cursor.execute(setup_schema)
-        print("✅ Setup schema created")
-        
-        # Commit schema changes
-        conn.commit()
+        print("✅ Connected to AWS RDS PostgreSQL database")
         
         # Import CSV data
         print("📊 Importing CSV data...")
         
         # Import categories
         print("  📁 Importing categories...")
-        with open('../data/categories.csv', 'r', encoding='utf-8-sig') as f:
+        with open('data/categories.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
+                # Parse day_of_week array from PostgreSQL format "{0,1,2,3,4,5,6}"
+                day_of_week_str = clean_csv_value(row.get('day_of_week', ''))
+                day_of_week_array = None
+                if day_of_week_str and day_of_week_str.startswith('{') and day_of_week_str.endswith('}'):
+                    content = day_of_week_str[1:-1]  # Remove { and }
+                    day_of_week_array = [int(day.strip()) for day in content.split(',') if day.strip()]
+                
                 cursor.execute("""
-                    INSERT INTO categories (category_name, category_text, sort_order, created_at)
-                    VALUES (%s, %s, %s, %s)
+                    INSERT INTO categories (category_name, category_text, day_of_week, day_of_week_text, description, category_text_long, version, uuid, sort_order, created_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (
                     clean_csv_value(row['category_name']),
                     clean_csv_value(row.get('category_text', '')),
+                    day_of_week_array,
+                    clean_csv_value(row.get('day_of_week_text', '')),
+                    clean_csv_value(row.get('description', '')),
+                    clean_csv_value(row.get('category_text_long', '')),
+                    clean_csv_value(row.get('version', '')),
+                    clean_csv_value(row.get('uuid', '')),
                     int(row.get('sort_order', 0)),
                     datetime.now()
                 ))
@@ -64,7 +65,7 @@ def import_setup_data():
         
         # Import blocks
         print("  📁 Importing blocks...")
-        with open('../data/blocks.csv', 'r', encoding='utf-8-sig') as f:
+        with open('data/blocks.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 cursor.execute("""
@@ -84,7 +85,7 @@ def import_setup_data():
         
         # Import questions
         print("  📁 Importing questions...")
-        with open('../data/questions.csv', 'r', encoding='utf-8-sig') as f:
+        with open('data/questions.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 cursor.execute("""
@@ -109,7 +110,7 @@ def import_setup_data():
         
         # Import options
         print("  📁 Importing options...")
-        with open('../data/options.csv', 'r', encoding='utf-8-sig') as f:
+        with open('data/options.csv', 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 cursor.execute("""
