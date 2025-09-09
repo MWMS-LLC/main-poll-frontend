@@ -1,0 +1,13 @@
+version: 1.0
+runtime: docker
+build:
+  commands:
+    build:
+      - echo "Building the application..."
+      - pip3 install -r requirements.txt
+run:
+  runtime-version: latest
+  command: python3 main.py
+  network:
+    port: 8080
+    env: PORT
