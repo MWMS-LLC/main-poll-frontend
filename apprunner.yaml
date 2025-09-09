@@ -4,8 +4,10 @@ build:
   commands:
     build:
       - echo "Building the application..."
+      - python3 -m pip install --upgrade pip
       - pip3 install --no-cache-dir -r requirements.txt
       - echo "Dependencies installed successfully"
+      - pip3 list | grep fastapi
 run:
   runtime-version: 3.9
   command: python3 main.py
