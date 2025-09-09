@@ -9,7 +9,6 @@ build:
       - echo "Dependencies installed successfully"
       - pip3 list | grep fastapi
 run:
-  runtime-version: 3.11
   command: python3 main.py
   network:
     port: 8080
